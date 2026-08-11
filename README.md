@@ -84,4 +84,6 @@ npm test
 # Run Client UI Tests
 cd client
 npm test
+
+# Pull Request comparison trigger
 ```
