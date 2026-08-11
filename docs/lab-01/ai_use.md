@@ -1,6 +1,6 @@
 # AI Use & Prompt Log - Lab 1
 
-I used the Antigravity coding agent with Gemini 3.6 Flash as the LLM.
+I used the Antigravity coding agent with Gemini 3.5 Flash as the LLM with a thinking level of Medium.
 
 ## Selected Key Prompts
 
