@@ -6,6 +6,7 @@ describe("API Health Check Endpoint", () => {
   it("GET /api/health returns 200 and expected JSON", async () => {
     const response = await request(app).get("/api/health");
     expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body).toEqual({
       status: "ok",
       service: "TokTickIT API",

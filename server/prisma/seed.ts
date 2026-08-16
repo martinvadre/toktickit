@@ -11,11 +11,12 @@ async function main() {
   ];
 
   for (const category of categories) {
-    await prisma.category.upsert({
+    const result = await prisma.category.upsert({
       where: { id: category.id },
       update: { name: category.name },
       create: category,
     });
+    console.log(`Seeded request category: ${result.name} (ID: ${result.id})`);
   }
 
   console.log("Successfully seeded 4 request categories.");

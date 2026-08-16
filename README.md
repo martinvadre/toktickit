@@ -1,87 +1,89 @@
-# TokTickIT - IT Service Desk Application
+# TokTickIT — IT Service Desk
 
-TokTickIT is an IT service desk web application for Account and Access, Hardware, Software, and Network requests built as part of CPE 334 (Introduction to Software Engineering in the Age of AI Agents).
+TokTickIT is a full-stack IT service desk application for managing internal requests across Account and Access, Hardware, Software, and Network categories.
 
-## 🚀 Tech Stack
+## Technology Stack
 
-- **Frontend:** React 18 + TypeScript + Vite + Bootstrap 5
-- **Backend:** Node.js + Express + TypeScript
-- **Database & ORM:** PostgreSQL + Prisma ORM
-- **Testing:** Vitest & Supertest
+* **Frontend:** React, TypeScript, Vite, Bootstrap 5
+* **Backend:** Node.js, Express, TypeScript
+* **Database & ORM:** PostgreSQL, Prisma ORM
+* **Testing:** Vitest, Supertest
+* **Workflow:** Git, GitHub Projects, Feature Branches, Pull Requests
 
 ---
 
-## 📁 Repository Structure
+## Project Structure
 
 ```text
 toktickit/
- ├── client/               # React + Vite Frontend
- │   ├── src/             # Application Components & API Client
- │   └── tests/lab-01/    # Vitest UI Tests
- ├── server/               # Express + Prisma Backend
- │   ├── prisma/          # Prisma Schema & Database Seed
- │   ├── src/             # Express App & Server Entrypoint
- │   └── tests/lab-01/    # Supertest API Endpoint Tests
- ├── docs/lab-01/          # Lab 1 Documentation & Peer Review Logs
- ├── .gitignore
- └── README.md
+├── client/          # React + Vite + Bootstrap frontend
+├── server/          # Express + Prisma + PostgreSQL backend
+│   ├── prisma/      # Prisma schema and seed script
+│   └── src/         # Express server source code
+│       └── tests/   # API integration tests (Supertest + Vitest)
+├── docs/            # Documentation and engineering records
+│   └── lab-01/      # Lab 1 evidence (ai_use.md, reviewer.md, tests.md)
+├── .gitignore       # Git ignore rules
+└── README.md        # Project setup and usage guide
 ```
 
 ---
 
-## 🛠️ Setup Instructions
+## Setup and Running Instructions
 
 ### 1. Prerequisites
-- Node.js (v18+)
-- PostgreSQL database running locally or via Docker
+
+* Node.js v18 or higher
+* A running PostgreSQL instance
 
 ### 2. Environment Configuration
-Copy the `.env.example` files to `.env` in both client and server directories:
+
+Copy the `.env.example` files into `.env` for both the client and server:
 
 ```bash
 cp client/.env.example client/.env
 cp server/.env.example server/.env
 ```
 
-Set your `DATABASE_URL` in `server/.env`:
+Then open `server/.env` and fill in your PostgreSQL connection details:
+
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/toktickit?schema=public"
+DATABASE_URL="postgresql://<user>:<password>@localhost:5432/<dbname>?schema=public"
+PORT=3000
 ```
 
-### 3. Install Dependencies & Setup Database
+### 3. Install Dependencies
 
 ```bash
-# Install Server Dependencies
-cd server
-npm install
-npx prisma db push
-npx prisma db seed
-
-# Install Client Dependencies
-cd ../client
-npm install
+npm install --prefix client
+npm install --prefix server
 ```
 
-### 4. Running the Application
+### 4. Database Setup
+
+Apply migrations and load the starter seed data:
 
 ```bash
-# Start Backend Server (Port 3000)
-cd server
-npm run dev
-
-# Start Frontend Dev Server (Port 5173)
-cd client
-npm run dev
+npm --prefix server run prisma:migrate
+npm --prefix server run prisma:seed
 ```
 
-### 5. Running Tests
+### 5. Start in Development Mode
 
 ```bash
-# Run Server API Tests
-cd server
-npm test
+# Backend API - http://localhost:3000
+npm --prefix server run dev
 
-# Run Client UI Tests
-cd client
-npm test
+# Frontend - http://localhost:5173
+npm --prefix client run dev
+```
+
+### 6. Run Tests
+
+```bash
+# Frontend UI tests
+npm --prefix client run test
+
+# Backend API tests
+npm --prefix server run test
 ```
