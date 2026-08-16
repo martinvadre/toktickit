@@ -1,9 +1,19 @@
-# Test Specifications - Lab 1
+# Lab 1 — Test Plan and Evidence
 
-| Test File | Tool | Test Description |
-| :--- | :--- | :--- |
-| `tests/lab-01/health.test.ts` | Supertest | Health endpoint returns 200 and expected JSON |
-| `tests/lab-01/categories.test.ts` | Supertest | Categories endpoint returns the four seeded categories |
-| `tests/lab-01/App.test.tsx` | Vitest | TokTickIT heading renders |
-| `tests/lab-01/App.test.tsx` | Vitest | Loading state changes to category list on success |
-| `tests/lab-01/App.test.tsx` | Vitest | API failure displays a useful error message |
+All test files live under `server/tests/lab-01/` and `client/tests/lab-01/`.
+
+| # | Tool | Test | Result |
+|---|---|---|---|
+| 1 | Supertest | GET /api/health returns 200, status=ok | pass |
+| 2 | Supertest | GET /api/categories returns 4 seeded categories in id order | pass |
+| 3 | Vitest | Heading renders | pass |
+| 4 | Vitest | Success state shows Online + category list | pass |
+| 5 | Vitest | Error state shows Offline + message | pass |
+
+Paste your passing terminal output / screenshot below.
+
+## Test Execution Summary
+
+* **Backend API tests:** `server/tests/lab-01/health.test.ts`, `server/tests/lab-01/categories.test.ts` (All 2 Passed)
+* **Frontend UI tests:** `client/tests/lab-01/App.test.tsx` (All 3 Passed)
+* **Total tests passing:** 5/5
