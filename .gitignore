@@ -14,6 +14,10 @@ build/
 server/prisma/*.db
 server/prisma/*.sqlite
 
+# Uploads
+server/uploads/*
+!server/uploads/.gitkeep
+
 # IDE & System
 .DS_Store
 .vscode/
