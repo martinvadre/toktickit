@@ -1,6 +1,21 @@
+export interface RequesterUser {
+  id: number;
+  name: string;
+  email: string;
+  department?: string;
+  isActive: boolean;
+}
+
 export interface Category {
   id: number;
   name: string;
+  isActive?: boolean;
+}
+
+export interface RelatedSystem {
+  id: number;
+  name: string;
+  isActive?: boolean;
 }
 
 export interface CheckSystemResult {
@@ -10,6 +25,33 @@ export interface CheckSystemResult {
 }
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+export async function fetchRequesters(): Promise<RequesterUser[]> {
+  const response = await fetch(`${API_URL}/api/requesters`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch development requesters");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const response = await fetch(`${API_URL}/api/categories`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function fetchRelatedSystems(): Promise<RelatedSystem[]> {
+  const response = await fetch(`${API_URL}/api/related-systems`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch related systems");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
 
 export async function checkSystem(): Promise<CheckSystemResult> {
   try {
@@ -31,7 +73,8 @@ export async function checkSystem(): Promise<CheckSystemResult> {
       };
     }
 
-    const categories: Category[] = await categoriesRes.json();
+    const resJson = await categoriesRes.json();
+    const categories: Category[] = resJson.data || resJson;
     return {
       status: "Online",
       categories,

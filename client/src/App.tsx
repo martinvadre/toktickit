@@ -1,18 +1,26 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { RequesterProvider, useRequester } from "./context/RequesterContext";
+import { RequesterSelect } from "./components/RequesterSelect";
+import { Header } from "./components/Header";
 import { checkSystem, Category } from "./api";
+import "./styles/theme.css";
 
-export default function App() {
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"Idle" | "Online" | "Offline">("Idle");
+function AppContent() {
+  const { currentRequester } = useRequester();
+  const [activeTab, setActiveTab] = useState("my-tickets");
+
+  // System check state for diagnostic / Lab 1 compatibility
+  const [loadingCheck, setLoadingCheck] = useState(false);
+  const [checkStatus, setCheckStatus] = useState<"Idle" | "Online" | "Offline">("Idle");
   const [categories, setCategories] = useState<Category[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleCheckSystem = async () => {
-    setLoading(true);
+    setLoadingCheck(true);
     setErrorMsg(null);
     const result = await checkSystem();
-    setLoading(false);
-    setStatus(result.status);
+    setLoadingCheck(false);
+    setCheckStatus(result.status);
     if (result.status === "Online") {
       setCategories(result.categories);
     } else {
@@ -21,59 +29,87 @@ export default function App() {
     }
   };
 
-  return (
-    <div className="container py-5">
-      <div className="card shadow-sm max-w-lg mx-auto p-4">
-        <h1 className="h3 mb-4 text-dark font-weight-bold">
-          TokTickIT <span className="text-success small fs-5">IT Service Desk</span>
-        </h1>
-
-        <div className="mb-4">
-          <button
-            className="btn btn-success px-4 font-weight-medium"
-            onClick={handleCheckSystem}
-            disabled={loading}
-          >
-            {loading ? "Checking System..." : "Check System"}
-          </button>
-        </div>
-
-        {loading && (
-          <div className="alert alert-info py-2" role="status">
-            Loading system status and request categories...
-          </div>
-        )}
-
-        {!loading && status !== "Idle" && (
-          <div className="mt-3">
-            <div className="mb-3 fs-5">
-              <strong>System Status:</strong>{" "}
-              <span className={status === "Online" ? "text-success fw-bold" : "text-danger fw-bold"}>
-                {status}
-              </span>
+  if (!currentRequester) {
+    return (
+      <div>
+        <RequesterSelect />
+        <div className="container pb-5">
+          <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: "600px" }}>
+            <h2 className="h6 text-muted mb-3">System Diagnostics</h2>
+            <div className="mb-3">
+              <button
+                className="btn btn-outline-success font-weight-medium"
+                onClick={handleCheckSystem}
+                disabled={loadingCheck}
+              >
+                {loadingCheck ? "Checking System..." : "Check System"}
+              </button>
             </div>
 
-            {status === "Online" && (
-              <div>
-                <h2 className="h5 text-secondary mb-2">Supported Request Categories</h2>
-                <ol className="list-group list-group-numbered">
-                  {categories.map((cat) => (
-                    <li key={cat.id} className="list-group-item">
-                      {cat.name}
-                    </li>
-                  ))}
-                </ol>
+            {loadingCheck && (
+              <div className="alert alert-info py-2" role="status">
+                Loading system status and request categories...
               </div>
             )}
 
-            {status === "Offline" && (
-              <div className="alert alert-danger" role="alert">
-                {errorMsg}
+            {!loadingCheck && checkStatus !== "Idle" && (
+              <div className="mt-2">
+                <div className="mb-2 fs-6">
+                  <strong>System Status:</strong>{" "}
+                  <span className={checkStatus === "Online" ? "text-success fw-bold" : "text-danger fw-bold"}>
+                    {checkStatus}
+                  </span>
+                </div>
+
+                {checkStatus === "Online" && (
+                  <div>
+                    <h3 className="h6 text-secondary mb-2">Supported Request Categories</h3>
+                    <ol className="list-group list-group-numbered">
+                      {categories.map((cat) => (
+                        <li key={cat.id} className="list-group-item py-1">
+                          {cat.name}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {checkStatus === "Offline" && (
+                  <div className="alert alert-danger" role="alert">
+                    {errorMsg}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-vh-100 d-flex flex-column">
+      <Header activeTab={activeTab} onSelectTab={setActiveTab} />
+      <main className="container py-4 flex-grow-1">
+        <div className="zen-card p-4 text-center py-5">
+          <h2 className="h4 fw-bold mb-2">Welcome, {currentRequester.name}!</h2>
+          <p className="text-muted mb-4">
+            Development Requester context is active ({currentRequester.email} &bull;{" "}
+            {currentRequester.department || "General Requester"}).
+          </p>
+          <div className="alert alert-success d-inline-block px-4 py-2" role="status">
+            Active Testing Context ID: <strong>{currentRequester.id}</strong>
+          </div>
+        </div>
+      </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <RequesterProvider>
+      <AppContent />
+    </RequesterProvider>
   );
 }
