@@ -3,6 +3,7 @@ import { RequesterProvider, useRequester } from "./context/RequesterContext";
 import { RequesterSelect } from "./components/RequesterSelect";
 import { Header } from "./components/Header";
 import { CreateTicket } from "./components/CreateTicket";
+import { MyTickets } from "./components/MyTickets";
 import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
@@ -94,40 +95,16 @@ function AppContent() {
       <main className="flex-grow-1">
         {activeTab === "create-ticket" && (
           <CreateTicket
-            onTicketCreated={() => {}}
+            onTicketCreated={() => setActiveTab("my-tickets")}
             onCancel={() => setActiveTab("my-tickets")}
           />
         )}
 
         {activeTab === "my-tickets" && (
-          <div className="container py-4">
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              <div>
-                <h1 className="h3 fw-bold text-dark mb-1">My Tickets</h1>
-                <p className="text-muted small mb-0">
-                  View and track all of your support requests.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="zen-btn-primary"
-                onClick={() => setActiveTab("create-ticket")}
-              >
-                + Create Ticket
-              </button>
-            </div>
-
-            <div className="zen-card p-4 text-center py-5">
-              <h2 className="h5 fw-bold mb-2">Welcome, {currentRequester.name}!</h2>
-              <p className="text-muted mb-4">
-                Development Requester context is active ({currentRequester.email} &bull;{" "}
-                {currentRequester.department || "General Requester"}).
-              </p>
-              <div className="alert alert-success d-inline-block px-4 py-2" role="status">
-                Active Testing Context ID: <strong>{currentRequester.id}</strong>
-              </div>
-            </div>
-          </div>
+          <MyTickets
+            onCreateTicket={() => setActiveTab("create-ticket")}
+            onSelectTicket={(id) => console.log("Selected ticket:", id)}
+          />
         )}
       </main>
     </div>
