@@ -4,12 +4,14 @@ import { RequesterSelect } from "./components/RequesterSelect";
 import { Header } from "./components/Header";
 import { CreateTicket } from "./components/CreateTicket";
 import { MyTickets } from "./components/MyTickets";
+import { TicketDetail } from "./components/TicketDetail";
 import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
 function AppContent() {
   const { currentRequester } = useRequester();
   const [activeTab, setActiveTab] = useState<string>("my-tickets");
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
 
   // System check state for diagnostic / Lab 1 compatibility
   const [loadingCheck, setLoadingCheck] = useState(false);
@@ -31,10 +33,15 @@ function AppContent() {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedTicketId(null);
+  };
+
   if (!currentRequester) {
     return (
       <div>
-        <RequesterSelect onContinue={() => setActiveTab("my-tickets")} />
+        <RequesterSelect onContinue={() => handleTabChange("my-tickets")} />
         <div className="container pb-5">
           <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: "600px" }}>
             <h2 className="h6 text-muted mb-3">System Diagnostics</h2>
@@ -91,20 +98,27 @@ function AppContent() {
 
   return (
     <div className="min-vh-100 d-flex flex-column">
-      <Header activeTab={activeTab} onSelectTab={setActiveTab} />
+      <Header activeTab={activeTab} onSelectTab={handleTabChange} />
       <main className="flex-grow-1">
         {activeTab === "create-ticket" && (
           <CreateTicket
-            onTicketCreated={() => setActiveTab("my-tickets")}
-            onCancel={() => setActiveTab("my-tickets")}
+            onTicketCreated={() => handleTabChange("my-tickets")}
+            onCancel={() => handleTabChange("my-tickets")}
           />
         )}
 
         {activeTab === "my-tickets" && (
-          <MyTickets
-            onCreateTicket={() => setActiveTab("create-ticket")}
-            onSelectTicket={(id) => console.log("Selected ticket:", id)}
-          />
+          selectedTicketId ? (
+            <TicketDetail
+              ticketId={selectedTicketId}
+              onBack={() => setSelectedTicketId(null)}
+            />
+          ) : (
+            <MyTickets
+              onCreateTicket={() => handleTabChange("create-ticket")}
+              onSelectTicket={(id) => setSelectedTicketId(id)}
+            />
+          )
         )}
       </main>
     </div>
