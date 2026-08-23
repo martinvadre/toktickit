@@ -33,6 +33,7 @@ export interface Ticket {
   category?: Category;
   relatedSystem?: RelatedSystem;
   requester?: RequesterUser;
+  attachmentCount?: number;
 }
 
 export interface CreateTicketPayload {
@@ -42,6 +43,47 @@ export interface CreateTicketPayload {
   summary: string;
   description: string;
   requestedPriority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+}
+
+export interface PaginationMetadata {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface TicketListItem {
+  id: number;
+  ticketNumber: string;
+  requesterId: number;
+  summary: string;
+  description?: string;
+  requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  createdAt: string;
+  updatedAt: string;
+  category?: Category;
+  relatedSystem?: RelatedSystem;
+  attachmentCount?: number;
+}
+
+export interface GetTicketsParams {
+  requesterId: number;
+  search?: string;
+  categoryId?: number;
+  status?: string;
+  priority?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface GetTicketsResponse {
+  data: TicketListItem[];
+  pagination: PaginationMetadata;
 }
 
 export interface CheckSystemResult {
@@ -100,6 +142,30 @@ export async function createTicket(payload: CreateTicketPayload): Promise<Ticket
   }
 
   return result.data;
+}
+
+export async function fetchMyTickets(params: GetTicketsParams): Promise<GetTicketsResponse> {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (params.categoryId) query.set("categoryId", String(params.categoryId));
+  if (params.status) query.set("status", params.status);
+  if (params.priority) query.set("priority", params.priority);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const response = await fetch(`${API_URL}/api/tickets?${query.toString()}`, {
+    headers: {
+      "x-requester-id": String(params.requesterId),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch tickets");
+  }
+
+  return response.json();
 }
 
 export async function checkSystem(): Promise<CheckSystemResult> {

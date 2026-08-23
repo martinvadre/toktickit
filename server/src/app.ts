@@ -80,6 +80,133 @@ app.get("/api/related-systems", async (req, res) => {
   }
 });
 
+// GET /api/tickets
+app.get("/api/tickets", async (req, res) => {
+  try {
+    const requesterHeader = req.headers["x-requester-id"];
+    const requesterId = req.query.requesterId
+      ? Number(req.query.requesterId)
+      : requesterHeader
+      ? Number(requesterHeader)
+      : undefined;
+
+    if (!requesterId || isNaN(requesterId)) {
+      return res.status(400).json({
+        error: {
+          code: "UNAUTHORIZED_REQUESTER",
+          message: "Valid x-requester-id header or requesterId query parameter is required.",
+        },
+      });
+    }
+
+    const {
+      search,
+      categoryId,
+      status,
+      priority,
+      page = "1",
+      limit = "10",
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
+
+    const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(String(limit), 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build Prisma where clause with strict requester isolation
+    const where: any = {
+      requesterId: requesterId,
+    };
+
+    if (search && typeof search === "string" && search.trim() !== "") {
+      const searchStr = search.trim();
+      where.OR = [
+        { summary: { contains: searchStr, mode: "insensitive" } },
+        { description: { contains: searchStr, mode: "insensitive" } },
+        { ticketNumber: { contains: searchStr, mode: "insensitive" } },
+      ];
+    }
+
+    if (categoryId) {
+      const catId = Number(categoryId);
+      if (!isNaN(catId)) {
+        where.categoryId = catId;
+      }
+    }
+
+    if (status && typeof status === "string" && status.trim() !== "") {
+      where.currentStatus = status.toUpperCase();
+    }
+
+    if (priority && typeof priority === "string" && priority.trim() !== "") {
+      where.requestedPriority = priority.toUpperCase();
+    }
+
+    // Build orderBy
+    const validSortFields = ["createdAt", "updatedAt", "requestedPriority", "ticketNumber"];
+    const sortField = validSortFields.includes(String(sortBy)) ? String(sortBy) : "createdAt";
+    const orderDirection = String(sortOrder).toLowerCase() === "asc" ? "asc" : "desc";
+
+    const [totalItems, tickets] = await Promise.all([
+      prisma.ticket.count({ where }),
+      prisma.ticket.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: {
+          [sortField]: orderDirection,
+        },
+        include: {
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          attachments: {
+            where: { isRemoved: false },
+            select: { id: true },
+          },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limitNum) || 1;
+
+    const formattedTickets = tickets.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      requesterId: t.requesterId,
+      summary: t.summary,
+      description: t.description,
+      requestedPriority: t.requestedPriority,
+      currentStatus: t.currentStatus,
+      createdAt: t.createdAt,
+      updatedAt: t.updatedAt,
+      category: t.category,
+      relatedSystem: t.relatedSystem,
+      attachmentCount: t.attachments.length,
+    }));
+
+    res.status(200).json({
+      data: formattedTickets,
+      pagination: {
+        totalItems,
+        totalPages,
+        currentPage: pageNum,
+        limit: limitNum,
+        hasNextPage: pageNum < totalPages,
+        hasPreviousPage: pageNum > 1,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to retrieve tickets:", error);
+    res.status(500).json({
+      error: {
+        code: "SERVER_ERROR",
+        message: "Failed to retrieve tickets.",
+      },
+    });
+  }
+});
+
 // POST /api/tickets
 app.post("/api/tickets", async (req, res) => {
   try {
