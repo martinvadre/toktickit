@@ -1,6 +1,103 @@
+export interface RequesterUser {
+  id: number;
+  name: string;
+  email: string;
+  department?: string;
+  isActive: boolean;
+}
+
 export interface Category {
   id: number;
   name: string;
+  isActive?: boolean;
+}
+
+export interface RelatedSystem {
+  id: number;
+  name: string;
+  isActive?: boolean;
+}
+
+export interface Attachment {
+  id: number;
+  ticketId: number;
+  fileName: string;
+  storedFileName?: string;
+  fileSize: number;
+  mimeType: string;
+  isRemoved: boolean;
+  removalReason?: string | null;
+  removedAt?: string | null;
+  createdAt: string;
+}
+
+export interface Ticket {
+  id: number;
+  ticketNumber: string;
+  requesterId: number;
+  categoryId: number;
+  relatedSystemId: number;
+  summary: string;
+  description: string;
+  requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  createdAt: string;
+  updatedAt: string;
+  category?: Category;
+  relatedSystem?: RelatedSystem;
+  requester?: RequesterUser;
+  attachments?: Attachment[];
+  attachmentCount?: number;
+}
+
+export interface CreateTicketPayload {
+  requesterId: number;
+  categoryId: number;
+  relatedSystemId: number;
+  summary: string;
+  description: string;
+  requestedPriority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+}
+
+export interface PaginationMetadata {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface TicketListItem {
+  id: number;
+  ticketNumber: string;
+  requesterId: number;
+  summary: string;
+  description?: string;
+  requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  createdAt: string;
+  updatedAt: string;
+  category?: Category;
+  relatedSystem?: RelatedSystem;
+  attachmentCount?: number;
+}
+
+export interface GetTicketsParams {
+  requesterId: number;
+  search?: string;
+  categoryId?: number;
+  status?: string;
+  priority?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface GetTicketsResponse {
+  data: TicketListItem[];
+  pagination: PaginationMetadata;
 }
 
 export interface CheckSystemResult {
@@ -10,6 +107,174 @@ export interface CheckSystemResult {
 }
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+export async function fetchRequesters(): Promise<RequesterUser[]> {
+  const response = await fetch(`${API_URL}/api/requesters`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch development requesters");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const response = await fetch(`${API_URL}/api/categories`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function fetchRelatedSystems(): Promise<RelatedSystem[]> {
+  const response = await fetch(`${API_URL}/api/related-systems`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch related systems");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function createTicket(payload: CreateTicketPayload): Promise<Ticket> {
+  const response = await fetch(`${API_URL}/api/tickets`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-requester-id": String(payload.requesterId),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    const errorMsg = result.error?.message || "Failed to create ticket";
+    const fieldErrors = result.error?.fieldErrors;
+    const error: any = new Error(errorMsg);
+    error.fieldErrors = fieldErrors;
+    throw error;
+  }
+
+  return result.data;
+}
+
+export async function fetchMyTickets(params: GetTicketsParams): Promise<GetTicketsResponse> {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (params.categoryId) query.set("categoryId", String(params.categoryId));
+  if (params.status) query.set("status", params.status);
+  if (params.priority) query.set("priority", params.priority);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const response = await fetch(`${API_URL}/api/tickets?${query.toString()}`, {
+    headers: {
+      "x-requester-id": String(params.requesterId),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch tickets");
+  }
+
+  return response.json();
+}
+
+export async function fetchTicketDetail(ticketId: number, requesterId: number): Promise<Ticket> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}`, {
+    headers: {
+      "x-requester-id": String(requesterId),
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    const error: any = new Error(result.error?.message || "Failed to fetch ticket detail");
+    error.code = result.error?.code;
+    error.status = response.status;
+    throw error;
+  }
+
+  return result.data;
+}
+
+export async function uploadAttachment(
+  ticketId: number,
+  file: File,
+  requesterId: number
+): Promise<Attachment> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, {
+    method: "POST",
+    headers: {
+      "x-requester-id": String(requesterId),
+    },
+    body: formData,
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to upload attachment");
+  }
+
+  return result.data;
+}
+
+export async function downloadAttachment(
+  attachmentId: number,
+  requesterId: number,
+  fileName: string
+): Promise<void> {
+  const response = await fetch(`${API_URL}/api/attachments/${attachmentId}/download`, {
+    headers: {
+      "x-requester-id": String(requesterId),
+    },
+  });
+
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result.error?.message || "Failed to download attachment");
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
+
+export async function removeAttachment(
+  attachmentId: number,
+  reason: string,
+  requesterId: number
+): Promise<Attachment> {
+  const response = await fetch(`${API_URL}/api/attachments/${attachmentId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "x-requester-id": String(requesterId),
+    },
+    body: JSON.stringify({ reason }),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to remove attachment");
+  }
+
+  return result.data;
+}
 
 export async function checkSystem(): Promise<CheckSystemResult> {
   try {
@@ -31,7 +296,8 @@ export async function checkSystem(): Promise<CheckSystemResult> {
       };
     }
 
-    const categories: Category[] = await categoriesRes.json();
+    const resJson = await categoriesRes.json();
+    const categories: Category[] = resJson.data || resJson;
     return {
       status: "Online",
       categories,

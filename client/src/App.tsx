@@ -1,18 +1,30 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { RequesterProvider, useRequester } from "./context/RequesterContext";
+import { RequesterSelect } from "./components/RequesterSelect";
+import { Header } from "./components/Header";
+import { CreateTicket } from "./components/CreateTicket";
+import { MyTickets } from "./components/MyTickets";
+import { TicketDetail } from "./components/TicketDetail";
 import { checkSystem, Category } from "./api";
+import "./styles/theme.css";
 
-export default function App() {
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"Idle" | "Online" | "Offline">("Idle");
+function AppContent() {
+  const { currentRequester } = useRequester();
+  const [activeTab, setActiveTab] = useState<string>("my-tickets");
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+
+  // System check state for diagnostic / Lab 1 compatibility
+  const [loadingCheck, setLoadingCheck] = useState(false);
+  const [checkStatus, setCheckStatus] = useState<"Idle" | "Online" | "Offline">("Idle");
   const [categories, setCategories] = useState<Category[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleCheckSystem = async () => {
-    setLoading(true);
+    setLoadingCheck(true);
     setErrorMsg(null);
     const result = await checkSystem();
-    setLoading(false);
-    setStatus(result.status);
+    setLoadingCheck(false);
+    setCheckStatus(result.status);
     if (result.status === "Online") {
       setCategories(result.categories);
     } else {
@@ -21,59 +33,102 @@ export default function App() {
     }
   };
 
-  return (
-    <div className="container py-5">
-      <div className="card shadow-sm max-w-lg mx-auto p-4">
-        <h1 className="h3 mb-4 text-dark font-weight-bold">
-          TokTickIT <span className="text-success small fs-5">IT Service Desk</span>
-        </h1>
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedTicketId(null);
+  };
 
-        <div className="mb-4">
-          <button
-            className="btn btn-success px-4 font-weight-medium"
-            onClick={handleCheckSystem}
-            disabled={loading}
-          >
-            {loading ? "Checking System..." : "Check System"}
-          </button>
-        </div>
-
-        {loading && (
-          <div className="alert alert-info py-2" role="status">
-            Loading system status and request categories...
-          </div>
-        )}
-
-        {!loading && status !== "Idle" && (
-          <div className="mt-3">
-            <div className="mb-3 fs-5">
-              <strong>System Status:</strong>{" "}
-              <span className={status === "Online" ? "text-success fw-bold" : "text-danger fw-bold"}>
-                {status}
-              </span>
+  if (!currentRequester) {
+    return (
+      <div>
+        <RequesterSelect onContinue={() => handleTabChange("my-tickets")} />
+        <div className="container pb-5">
+          <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: "600px" }}>
+            <h2 className="h6 text-muted mb-3">System Diagnostics</h2>
+            <div className="mb-3">
+              <button
+                className="btn btn-outline-success font-weight-medium"
+                onClick={handleCheckSystem}
+                disabled={loadingCheck}
+              >
+                {loadingCheck ? "Checking System..." : "Check System"}
+              </button>
             </div>
 
-            {status === "Online" && (
-              <div>
-                <h2 className="h5 text-secondary mb-2">Supported Request Categories</h2>
-                <ol className="list-group list-group-numbered">
-                  {categories.map((cat) => (
-                    <li key={cat.id} className="list-group-item">
-                      {cat.name}
-                    </li>
-                  ))}
-                </ol>
+            {loadingCheck && (
+              <div className="alert alert-info py-2" role="status">
+                Loading system status and request categories...
               </div>
             )}
 
-            {status === "Offline" && (
-              <div className="alert alert-danger" role="alert">
-                {errorMsg}
+            {!loadingCheck && checkStatus !== "Idle" && (
+              <div className="mt-2">
+                <div className="mb-2 fs-6">
+                  <strong>System Status:</strong>{" "}
+                  <span className={checkStatus === "Online" ? "text-success fw-bold" : "text-danger fw-bold"}>
+                    {checkStatus}
+                  </span>
+                </div>
+
+                {checkStatus === "Online" && (
+                  <div>
+                    <h3 className="h6 text-secondary mb-2">Supported Request Categories</h3>
+                    <ol className="list-group list-group-numbered">
+                      {categories.map((cat) => (
+                        <li key={cat.id} className="list-group-item py-1">
+                          {cat.name}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {checkStatus === "Offline" && (
+                  <div className="alert alert-danger" role="alert">
+                    {errorMsg}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-vh-100 d-flex flex-column">
+      <Header activeTab={activeTab} onSelectTab={handleTabChange} />
+      <main className="flex-grow-1">
+        {activeTab === "create-ticket" && (
+          <CreateTicket
+            onTicketCreated={() => handleTabChange("my-tickets")}
+            onCancel={() => handleTabChange("my-tickets")}
+          />
+        )}
+
+        {activeTab === "my-tickets" && (
+          selectedTicketId ? (
+            <TicketDetail
+              ticketId={selectedTicketId}
+              onBack={() => setSelectedTicketId(null)}
+            />
+          ) : (
+            <MyTickets
+              onCreateTicket={() => handleTabChange("create-ticket")}
+              onSelectTicket={(id) => setSelectedTicketId(id)}
+            />
+          )
+        )}
+      </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <RequesterProvider>
+      <AppContent />
+    </RequesterProvider>
   );
 }
