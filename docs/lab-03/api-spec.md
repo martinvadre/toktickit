@@ -66,7 +66,8 @@ Authenticate a user with email and password.
       "email": "staff.supachai@kmutt.ac.th",
       "department": "IT Operations",
       "role": "STAFF",
-      "isActive": true
+      "isActive": true,
+      "mustChangePassword": false
     }
   }
 }
@@ -104,10 +105,42 @@ Retrieve currently authenticated user profile.
     "department": "IT Operations",
     "role": "STAFF",
     "isActive": true,
+    "mustChangePassword": false,
     "createdAt": "2026-08-20T08:30:00.000Z"
   }
 }
 ```
+
+---
+
+### 2.4. `POST /api/auth/change-password`
+Change the authenticated user's password (mandatory on first login if `mustChangePassword = true`, or voluntary).
+
+- **Access Level**: Authenticated (`REQUESTER`, `STAFF`, `ADMIN`)
+- **Request Body**:
+```json
+{
+  "currentPassword": "InitialPassword123!",
+  "newPassword": "NewSecurePassword456!",
+  "confirmPassword": "NewSecurePassword456!"
+}
+```
+- **Success Response (200 OK)**:
+```json
+{
+  "data": {
+    "message": "Password changed successfully.",
+    "user": {
+      "id": 5,
+      "email": "staff.supachai@kmutt.ac.th",
+      "mustChangePassword": false
+    }
+  }
+}
+```
+- **Error Responses**:
+  - `400 Bad Request`: Passwords do not match or new password does not satisfy complexity rules (min 8 chars, upper, lower, digit, special char).
+  - `401 Unauthorized`: Incorrect current password or unauthenticated session.
 
 ---
 
