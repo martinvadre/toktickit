@@ -121,12 +121,20 @@ app.get("/api/related-systems", async (req, res) => {
 // GET /api/tickets
 app.get("/api/tickets", async (req, res) => {
   try {
-    const requesterHeader = req.headers["x-requester-id"];
-    const requesterId = req.query.requesterId
-      ? Number(req.query.requesterId)
-      : requesterHeader
-      ? Number(requesterHeader)
-      : undefined;
+    const authenticatedUser = (req as any).user;
+    let requesterId: number | undefined;
+
+    // BR-03 / API-11: Authenticated REQUESTER identity strictly determines ownership
+    if (authenticatedUser && authenticatedUser.role === "REQUESTER") {
+      requesterId = authenticatedUser.id;
+    } else {
+      const requesterHeader = req.headers["x-requester-id"];
+      requesterId = req.query.requesterId
+        ? Number(req.query.requesterId)
+        : requesterHeader
+        ? Number(requesterHeader)
+        : authenticatedUser?.id;
+    }
 
     if (!requesterId || isNaN(requesterId)) {
       return res.status(400).json({
@@ -248,12 +256,19 @@ app.get("/api/tickets", async (req, res) => {
 // GET /api/tickets/:id (Ticket Details)
 app.get("/api/tickets/:id", async (req, res) => {
   try {
-    const requesterHeader = req.headers["x-requester-id"];
-    const requesterId = req.query.requesterId
-      ? Number(req.query.requesterId)
-      : requesterHeader
-      ? Number(requesterHeader)
-      : undefined;
+    const authenticatedUser = (req as any).user;
+    let requesterId: number | undefined;
+
+    if (authenticatedUser && authenticatedUser.role === "REQUESTER") {
+      requesterId = authenticatedUser.id;
+    } else {
+      const requesterHeader = req.headers["x-requester-id"];
+      requesterId = req.query.requesterId
+        ? Number(req.query.requesterId)
+        : requesterHeader
+        ? Number(requesterHeader)
+        : authenticatedUser?.id;
+    }
 
     if (!requesterId || isNaN(requesterId)) {
       return res.status(400).json({
@@ -280,8 +295,16 @@ app.get("/api/tickets/:id", async (req, res) => {
         category: { select: { id: true, name: true } },
         relatedSystem: { select: { id: true, name: true } },
         requester: { select: { id: true, name: true, email: true, department: true } },
+        assignedStaff: { select: { id: true, name: true, email: true } },
         attachments: {
           orderBy: { createdAt: "asc" },
+        },
+        comments: {
+          where: { isInternal: false }, // Strictly omit internal notes for requesters! (API-24 / BR-04)
+          orderBy: { createdAt: "asc" },
+          include: {
+            author: { select: { id: true, name: true, role: true } },
+          },
         },
       },
     });
@@ -295,8 +318,9 @@ app.get("/api/tickets/:id", async (req, res) => {
       });
     }
 
-    // Ownership check (AC-09)
-    if (ticket.requesterId !== requesterId) {
+    // Ownership check (AC-09 / BR-03)
+    const isStaffOrAdmin = authenticatedUser && (authenticatedUser.role === "STAFF" || authenticatedUser.role === "ADMIN");
+    if (!isStaffOrAdmin && ticket.requesterId !== requesterId) {
       return res.status(403).json({
         error: {
           code: "FORBIDDEN",
@@ -313,6 +337,119 @@ app.get("/api/tickets/:id", async (req, res) => {
         code: "SERVER_ERROR",
         message: "Failed to get ticket detail.",
       },
+    });
+  }
+});
+
+// POST /api/tickets/:id/comments (Public Comments for Requesters & Staff)
+app.post("/api/tickets/:id/comments", async (req, res) => {
+  try {
+    const authenticatedUser = (req as any).user;
+    if (!authenticatedUser) {
+      return res.status(401).json({
+        error: { code: "UNAUTHORIZED", message: "Authentication required." },
+      });
+    }
+
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const { content } = req.body;
+    if (!content || typeof content !== "string" || content.trim().length === 0 || content.trim().length > 2000) {
+      return res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Comment content must be non-empty and up to 2000 characters.",
+        },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    // If requester, verify ownership
+    if (authenticatedUser.role === "REQUESTER" && ticket.requesterId !== authenticatedUser.id) {
+      return res.status(403).json({
+        error: { code: "FORBIDDEN", message: "You do not have permission to comment on this ticket." },
+      });
+    }
+
+    // Requesters can NEVER create internal notes (isInternal is always false)
+    const comment = await prisma.ticketComment.create({
+      data: {
+        ticketId,
+        authorId: authenticatedUser.id,
+        content: content.trim(),
+        isInternal: false,
+      },
+      include: {
+        author: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(201).json({ data: comment });
+  } catch (error) {
+    console.error("Requester comment error:", error);
+    return res.status(500).json({
+      error: { code: "SERVER_ERROR", message: "Failed to post comment." },
+    });
+  }
+});
+
+// PATCH /api/tickets/:id/indicate-resolved (Requester marks issue as appearing resolved)
+app.patch("/api/tickets/:id/indicate-resolved", async (req, res) => {
+  try {
+    const authenticatedUser = (req as any).user;
+    if (!authenticatedUser) {
+      return res.status(401).json({
+        error: { code: "UNAUTHORIZED", message: "Authentication required." },
+      });
+    }
+
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    if (authenticatedUser.role === "REQUESTER" && ticket.requesterId !== authenticatedUser.id) {
+      return res.status(403).json({
+        error: { code: "FORBIDDEN", message: "You do not have permission to update this ticket." },
+      });
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: { requesterIndicatedResolved: true },
+    });
+
+    return res.status(200).json({
+      data: {
+        id: updated.id,
+        ticketNumber: updated.ticketNumber,
+        requesterIndicatedResolved: updated.requesterIndicatedResolved,
+      },
+    });
+  } catch (error) {
+    console.error("Indicate resolved error:", error);
+    return res.status(500).json({
+      error: { code: "SERVER_ERROR", message: "Failed to indicate resolution." },
     });
   }
 });

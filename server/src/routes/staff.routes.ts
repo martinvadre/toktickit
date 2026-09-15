@@ -243,4 +243,372 @@ router.get("/members", async (_req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+// Permitted status transitions matrix (BR-06)
+const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
+  NEW: [TicketStatus.OPEN, TicketStatus.ASSIGNED, TicketStatus.IN_PROGRESS, TicketStatus.CANCELLED],
+  OPEN: [TicketStatus.IN_PROGRESS, TicketStatus.WAITING_FOR_REQUESTER, TicketStatus.PENDING_REQUESTER, TicketStatus.RESOLVED, TicketStatus.CANCELLED],
+  ASSIGNED: [TicketStatus.IN_PROGRESS, TicketStatus.WAITING_FOR_REQUESTER, TicketStatus.PENDING_REQUESTER, TicketStatus.RESOLVED, TicketStatus.CANCELLED],
+  IN_PROGRESS: [TicketStatus.OPEN, TicketStatus.ASSIGNED, TicketStatus.WAITING_FOR_REQUESTER, TicketStatus.PENDING_REQUESTER, TicketStatus.RESOLVED, TicketStatus.CANCELLED],
+  WAITING_FOR_REQUESTER: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED, TicketStatus.CANCELLED],
+  PENDING_REQUESTER: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED, TicketStatus.CANCELLED],
+  RESOLVED: [TicketStatus.CLOSED, TicketStatus.REOPENED],
+  REOPENED: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED, TicketStatus.CANCELLED],
+  CLOSED: [],
+  CANCELLED: [],
+};
+
+function isValidTransition(from: TicketStatus, to: TicketStatus): boolean {
+  if (from === to) return true;
+  const allowed = VALID_TRANSITIONS[from];
+  return allowed ? allowed.includes(to) : false;
+}
+
+/**
+ * GET /api/staff/tickets/:id
+ * Retrieve full ticket detail including all public comments and internal notes.
+ */
+router.get("/tickets/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      include: {
+        category: { select: { id: true, name: true } },
+        relatedSystem: { select: { id: true, name: true } },
+        requester: { select: { id: true, name: true, email: true, department: true } },
+        assignedStaff: { select: { id: true, name: true, email: true, role: true, department: true } },
+        attachments: {
+          where: { isRemoved: false },
+          orderBy: { createdAt: "asc" },
+        },
+        comments: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            author: { select: { id: true, name: true, email: true, role: true } },
+          },
+        },
+      },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    return res.status(200).json({
+      data: {
+        id: ticket.id,
+        ticketNumber: ticket.ticketNumber,
+        summary: ticket.summary,
+        description: ticket.description,
+        requestedPriority: ticket.requestedPriority,
+        itPriority: ticket.itPriority || ticket.requestedPriority,
+        currentStatus: ticket.currentStatus,
+        requesterIndicatedResolved: ticket.requesterIndicatedResolved,
+        resolutionSummary: ticket.resolutionSummary,
+        resolvedAt: ticket.resolvedAt,
+        closedAt: ticket.closedAt,
+        createdAt: ticket.createdAt,
+        updatedAt: ticket.updatedAt,
+        requester: ticket.requester,
+        assignedStaff: ticket.assignedStaff,
+        category: ticket.category,
+        relatedSystem: ticket.relatedSystem,
+        attachments: ticket.attachments,
+        comments: ticket.comments,
+      },
+    });
+  } catch (error) {
+    console.error("Staff ticket detail error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to retrieve ticket detail." },
+    });
+  }
+});
+
+/**
+ * PATCH /api/staff/tickets/:id/status
+ * Execute valid ticket status transition per BR-06.
+ */
+router.patch("/tickets/:id/status", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const { status, resolutionSummary } = req.body;
+    if (!status || typeof status !== "string") {
+      return res.status(400).json({
+        error: { code: "VALIDATION_ERROR", message: "Status is required." },
+      });
+    }
+
+    const targetStatus = status.trim().toUpperCase() as TicketStatus;
+    if (!Object.values(TicketStatus).includes(targetStatus)) {
+      return res.status(400).json({
+        error: { code: "INVALID_STATUS", message: `Invalid status: ${status}` },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    // Check transition legality (BR-06)
+    if (!isValidTransition(ticket.currentStatus, targetStatus)) {
+      return res.status(400).json({
+        error: {
+          code: "INVALID_STATUS_TRANSITION",
+          message: `Cannot transition status from ${ticket.currentStatus} to ${targetStatus}.`,
+        },
+      });
+    }
+
+    // Resolution summary requirement for RESOLVED or CLOSED (BR-09)
+    if (targetStatus === TicketStatus.RESOLVED || targetStatus === TicketStatus.CLOSED) {
+      const summaryText = typeof resolutionSummary === "string" ? resolutionSummary.trim() : (ticket.resolutionSummary || "");
+      if (summaryText.length < 10) {
+        return res.status(400).json({
+          error: {
+            code: "RESOLUTION_SUMMARY_REQUIRED",
+            message: "A resolution summary of at least 10 characters is required.",
+          },
+        });
+      }
+    }
+
+    const updateData: any = {
+      currentStatus: targetStatus,
+    };
+
+    if (resolutionSummary && typeof resolutionSummary === "string") {
+      updateData.resolutionSummary = resolutionSummary.trim();
+    }
+
+    if (targetStatus === TicketStatus.RESOLVED && !ticket.resolvedAt) {
+      updateData.resolvedAt = new Date();
+    }
+
+    if (targetStatus === TicketStatus.CLOSED && !ticket.closedAt) {
+      updateData.closedAt = new Date();
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: updateData,
+      include: {
+        assignedStaff: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    return res.status(200).json({
+      data: {
+        id: updated.id,
+        ticketNumber: updated.ticketNumber,
+        currentStatus: updated.currentStatus,
+        resolutionSummary: updated.resolutionSummary,
+        resolvedAt: updated.resolvedAt,
+        closedAt: updated.closedAt,
+        assignedStaff: updated.assignedStaff,
+      },
+    });
+  } catch (error) {
+    console.error("Staff status update error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to update ticket status." },
+    });
+  }
+});
+
+/**
+ * PATCH /api/staff/tickets/:id/assign
+ * Assign ticket to an active Staff or Administrator user (BR-07).
+ */
+router.patch("/tickets/:id/assign", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const { assignedStaffId } = req.body;
+
+    if (assignedStaffId !== null && assignedStaffId !== undefined) {
+      const staffIdNum = Number(assignedStaffId);
+      if (isNaN(staffIdNum)) {
+        return res.status(400).json({
+          error: { code: "INVALID_ASSIGNEE", message: "Invalid staff ID format." },
+        });
+      }
+
+      const targetUser = await prisma.user.findUnique({
+        where: { id: staffIdNum },
+      });
+
+      if (!targetUser || !targetUser.isActive || targetUser.role === Role.REQUESTER) {
+        return res.status(400).json({
+          error: {
+            code: "INVALID_ASSIGNEE",
+            message: "Can only assign ticket to an active Staff or Administrator user.",
+          },
+        });
+      }
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        assignedStaffId: assignedStaffId ? Number(assignedStaffId) : null,
+      },
+      include: {
+        assignedStaff: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(200).json({
+      data: {
+        id: updated.id,
+        ticketNumber: updated.ticketNumber,
+        assignedStaff: updated.assignedStaff,
+      },
+    });
+  } catch (error) {
+    console.error("Staff assign error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to assign staff." },
+    });
+  }
+});
+
+/**
+ * PATCH /api/staff/tickets/:id/priority
+ * Update IT Priority independently from Requested Priority (BR-08).
+ */
+router.patch("/tickets/:id/priority", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const { itPriority } = req.body;
+    if (!itPriority || typeof itPriority !== "string") {
+      return res.status(400).json({
+        error: { code: "VALIDATION_ERROR", message: "itPriority is required." },
+      });
+    }
+
+    const priorityVal = itPriority.trim().toUpperCase() as Priority;
+    if (!Object.values(Priority).includes(priorityVal)) {
+      return res.status(400).json({
+        error: { code: "INVALID_PRIORITY", message: `Invalid priority: ${itPriority}` },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: { itPriority: priorityVal },
+    });
+
+    return res.status(200).json({
+      data: {
+        id: updated.id,
+        ticketNumber: updated.ticketNumber,
+        requestedPriority: updated.requestedPriority,
+        itPriority: updated.itPriority,
+      },
+    });
+  } catch (error) {
+    console.error("Staff priority update error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to update IT priority." },
+    });
+  }
+});
+
+/**
+ * POST /api/staff/tickets/:id/comments
+ * Add public comment or internal staff note (BR-04, BR-10).
+ */
+router.post("/tickets/:id/comments", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const { content, isInternal } = req.body;
+    if (!content || typeof content !== "string" || content.trim().length === 0 || content.trim().length > 2000) {
+      return res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Comment content must be non-empty and up to 2000 characters.",
+        },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const comment = await prisma.ticketComment.create({
+      data: {
+        ticketId,
+        authorId: req.user!.id,
+        content: content.trim(),
+        isInternal: Boolean(isInternal),
+      },
+      include: {
+        author: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(201).json({ data: comment });
+  } catch (error) {
+    console.error("Staff comment creation error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to add comment." },
+    });
+  }
+});
+
 export default router;

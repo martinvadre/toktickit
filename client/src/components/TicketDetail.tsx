@@ -7,6 +7,8 @@ import {
   uploadAttachment,
   downloadAttachment,
   removeAttachment,
+  addRequesterComment,
+  indicateTicketResolved,
 } from "../api";
 
 interface TicketDetailProps {
@@ -24,6 +26,12 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
+
+  // Comments state
+  const [commentText, setCommentText] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const [indicatingResolved, setIndicatingResolved] = useState(false);
 
   // Upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -155,6 +163,37 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
       setRemovalError(err.message || "Failed to remove attachment.");
     } finally {
       setRemoving(false);
+    }
+  };
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim() || !ticket) return;
+
+    setSubmittingComment(true);
+    setCommentError(null);
+    try {
+      await addRequesterComment(ticket.id, commentText.trim());
+      setCommentText("");
+      await loadTicket();
+    } catch (err: any) {
+      setCommentError(err.message || "Failed to post comment.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleIndicateResolved = async () => {
+    if (!ticket) return;
+
+    setIndicatingResolved(true);
+    try {
+      await indicateTicketResolved(ticket.id);
+      await loadTicket();
+    } catch (err: any) {
+      alert(err.message || "Failed to indicate resolution.");
+    } finally {
+      setIndicatingResolved(false);
     }
   };
 
@@ -294,13 +333,32 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
               {ticket.ticketNumber}
             </span>
           </div>
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex flex-wrap gap-2 align-items-center">
             <span className={getPriorityBadgeClass(ticket.requestedPriority)}>
               Priority: {ticket.requestedPriority}
             </span>
             <span className={getStatusBadgeClass(ticket.currentStatus)}>
               Status: {ticket.currentStatus}
             </span>
+            {ticket.requesterIndicatedResolved ? (
+              <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" data-testid="indicated-resolved-badge">
+                🔔 Problem Indicated Resolved
+              </span>
+            ) : (
+              ticket.currentStatus !== "RESOLVED" &&
+              ticket.currentStatus !== "CLOSED" &&
+              ticket.currentStatus !== "CANCELLED" && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-success"
+                  onClick={handleIndicateResolved}
+                  disabled={indicatingResolved}
+                  data-testid="indicate-resolved-btn"
+                >
+                  {indicatingResolved ? "Updating..." : "✓ Problem Appears Resolved"}
+                </button>
+              )
+            )}
           </div>
         </div>
 
@@ -474,6 +532,67 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Public Discussion & Comments Section */}
+      <div className="zen-card p-4 p-md-5 mb-4" data-testid="requester-comments-section">
+        <h2 className="h5 fw-bold text-dark mb-3 border-bottom pb-2">
+          Public Discussion & Updates
+        </h2>
+
+        {/* Existing Comments List */}
+        <div className="mb-4">
+          {(!ticket.comments || ticket.comments.length === 0) ? (
+            <p className="text-muted small mb-0">No public comments yet.</p>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {ticket.comments.map((comment) => (
+                <div key={comment.id} className="p-3 bg-light rounded border">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <span className="small fw-bold text-dark">
+                      {comment.author.name} ({comment.author.role})
+                    </span>
+                    <span className="small text-muted">{formatDate(comment.createdAt)}</span>
+                  </div>
+                  <div className="small text-dark" style={{ whiteSpace: "pre-wrap" }}>
+                    {comment.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* New Comment Input */}
+        <form onSubmit={handleAddComment}>
+          <div className="mb-2">
+            <textarea
+              className="form-control"
+              rows={3}
+              placeholder="Post a public update or reply on this ticket..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              disabled={submittingComment}
+              data-testid="requester-comment-input"
+              required
+            />
+          </div>
+          <div className="d-flex justify-content-between align-items-center">
+            {commentError ? (
+              <span className="small text-danger">{commentError}</span>
+            ) : (
+              <span className="small text-muted">Comments are public to IT Staff and Administrators.</span>
+            )}
+            <button
+              type="submit"
+              className="zen-btn-primary py-1 px-3 text-nowrap"
+              disabled={submittingComment || !commentText.trim()}
+              data-testid="post-comment-btn"
+            >
+              {submittingComment ? "Posting..." : "Post Comment"}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Soft Removal Confirmation Modal */}
