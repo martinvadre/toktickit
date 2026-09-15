@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { RequesterProvider, useRequester } from "./context/RequesterContext";
-import { RequesterSelect } from "./components/RequesterSelect";
+import { Login } from "./components/Login";
+import { ChangePassword } from "./components/ChangePassword";
 import { Header } from "./components/Header";
 import { CreateTicket } from "./components/CreateTicket";
 import { MyTickets } from "./components/MyTickets";
@@ -9,9 +11,26 @@ import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
 function AppContent() {
-  const { currentRequester } = useRequester();
+  const { user, loading: authLoading } = useAuth();
+  const { setRequester, clearRequester } = useRequester();
+
   const [activeTab, setActiveTab] = useState<string>("my-tickets");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+
+  // Synchronize authenticated user with RequesterContext
+  useEffect(() => {
+    if (user) {
+      setRequester({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        department: user.department,
+        isActive: user.isActive,
+      });
+    } else {
+      clearRequester();
+    }
+  }, [user]);
 
   // System check state for diagnostic / Lab 1 compatibility
   const [loadingCheck, setLoadingCheck] = useState(false);
@@ -38,10 +57,22 @@ function AppContent() {
     setSelectedTicketId(null);
   };
 
-  if (!currentRequester) {
+  if (authLoading) {
     return (
-      <div>
-        <RequesterSelect onContinue={() => handleTabChange("my-tickets")} />
+      <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. Unauthenticated: Render Login Screen + System Diagnostics (for Lab 1 test compatibility)
+  if (!user) {
+    return (
+      <div className="bg-light min-vh-100">
+        <Login onSuccess={() => handleTabChange("my-tickets")} />
+
         <div className="container pb-5">
           <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: "600px" }}>
             <h2 className="h6 text-muted mb-3">System Diagnostics</h2>
@@ -96,6 +127,14 @@ function AppContent() {
     );
   }
 
+  // 2. Mandatory First-Login Password Change Screen (BR-02 / AC-02)
+  if (user.mustChangePassword) {
+    return (
+      <ChangePassword onSuccess={() => handleTabChange("my-tickets")} />
+    );
+  }
+
+  // 3. Authenticated Application Shell
   return (
     <div className="min-vh-100 d-flex flex-column">
       <Header activeTab={activeTab} onSelectTab={handleTabChange} />
@@ -120,6 +159,46 @@ function AppContent() {
             />
           )
         )}
+
+        {activeTab === "staff-queue" && (
+          <div className="container py-5 text-center">
+            <div className="card shadow-sm p-5 border-0 mx-auto" style={{ maxWidth: "600px" }}>
+              <span className="fs-1 mb-2">📥</span>
+              <h2 className="h4 fw-bold mb-2">IT Staff Ticket Queue</h2>
+              <p className="text-muted">
+                The IT Staff queue is being implemented in Issue 13.
+              </p>
+              <div>
+                <button
+                  className="btn btn-outline-success"
+                  onClick={() => handleTabChange("my-tickets")}
+                >
+                  Back to My Tickets
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "admin-users" && (
+          <div className="container py-5 text-center">
+            <div className="card shadow-sm p-5 border-0 mx-auto" style={{ maxWidth: "600px" }}>
+              <span className="fs-1 mb-2">👥</span>
+              <h2 className="h4 fw-bold mb-2">User Management</h2>
+              <p className="text-muted">
+                Administrator user management is being implemented in Issue 15.
+              </p>
+              <div>
+                <button
+                  className="btn btn-outline-success"
+                  onClick={() => handleTabChange("my-tickets")}
+                >
+                  Back to My Tickets
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
@@ -127,8 +206,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <RequesterProvider>
-      <AppContent />
-    </RequesterProvider>
+    <AuthProvider>
+      <RequesterProvider>
+        <AppContent />
+      </RequesterProvider>
+    </AuthProvider>
   );
 }
