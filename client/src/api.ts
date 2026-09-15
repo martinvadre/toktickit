@@ -407,3 +407,111 @@ export async function changeUserPassword(
   }
   return result.data;
 }
+
+export interface StaffMember {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  department?: string;
+}
+
+export interface StaffTicket {
+  id: number;
+  ticketNumber: string;
+  summary: string;
+  description: string;
+  requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  itPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  requesterIndicatedResolved?: boolean;
+  resolutionSummary?: string | null;
+  resolvedAt?: string | null;
+  closedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  requester: RequesterUser;
+  assignedStaff?: StaffMember | null;
+  category: Category;
+  relatedSystem: RelatedSystem;
+  attachmentCount: number;
+  commentCount: number;
+}
+
+export interface StaffTicketsParams {
+  search?: string;
+  status?: string;
+  categoryId?: number | string;
+  relatedSystemId?: number | string;
+  assignedStaffId?: number | string;
+  requestedPriority?: string;
+  itPriority?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface StaffTicketsResponse {
+  data: StaffTicket[];
+  meta?: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
+  pagination: {
+    totalItems: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+  counts: {
+    total: number;
+    unassigned: number;
+    inProgress: number;
+    resolved: number;
+  };
+}
+
+export async function fetchStaffTickets(
+  params: StaffTicketsParams = {}
+): Promise<StaffTicketsResponse> {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (params.status && params.status !== "ALL") query.set("status", params.status);
+  if (params.categoryId && params.categoryId !== "ALL") query.set("categoryId", String(params.categoryId));
+  if (params.relatedSystemId && params.relatedSystemId !== "ALL") query.set("relatedSystemId", String(params.relatedSystemId));
+  if (params.assignedStaffId && params.assignedStaffId !== "ALL") query.set("assignedStaffId", String(params.assignedStaffId));
+  if (params.requestedPriority && params.requestedPriority !== "ALL") query.set("requestedPriority", params.requestedPriority);
+  if (params.itPriority && params.itPriority !== "ALL") query.set("itPriority", params.itPriority);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const qs = query.toString();
+  const url = `${API_URL}/api/staff/tickets${qs ? `?${qs}` : ""}`;
+  const response = await fetch(url, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch staff tickets");
+  }
+  return result;
+}
+
+export async function fetchStaffMembers(): Promise<StaffMember[]> {
+  const response = await fetch(`${API_URL}/api/staff/members`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch staff members");
+  }
+  return result.data;
+}
+
