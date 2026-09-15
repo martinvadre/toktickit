@@ -12,8 +12,8 @@
 | **[#35](https://github.com/martinvadre/toktickit/pull/35)** | `feature/11-spec-and-tests` | Sprint 3 Engineering Contract (`docs/lab-03/`), API Spec, UI Spec, and Test Matrix | Approved & Merged |
 | **[#36](https://github.com/martinvadre/toktickit/pull/36)** | `feature/12-auth-foundation` | Authentication Foundation (`/api/auth/*`), JWT token handling, User database model migration (`User` with roles `REQUESTER`, `STAFF`, `ADMIN`), and password hashing | Approved & Merged |
 | **[#37](https://github.com/martinvadre/toktickit/pull/37)** | `feature/13-staff-queue` | IT Staff Ticket Queue (`/staff/queue`), multi-criteria filtering, keyword search, sorting, and pagination across all requesters | Approved & Merged |
-| **[#38](https://github.com/martinvadre/toktickit/pull/38)** | `feature/14-staff-operations` | IT Staff Ticket Detail & Operations (`/staff/tickets/:id`), status lifecycle transitions, staff assignment, IT priority, resolution workflow, internal notes privacy | Pending Review |
-| **Pending** | `feature/15-admin-user-management` | Administrator User Management (`/admin/users`), user list, user creation, role editing, active status toggle, password reset, and last admin protection guardrail | Pending Implementation |
+| **[#38](https://github.com/martinvadre/toktickit/pull/38)** | `feature/14-staff-operations` | IT Staff Ticket Detail & Operations (`/staff/tickets/:id`), status lifecycle transitions, staff assignment, IT priority, resolution workflow, internal notes privacy | Approved & Merged |
+| **[#39](https://github.com/martinvadre/toktickit/pull/39)** | `feature/15-admin-user-management` | Administrator User Management (`/admin/users`), user list, user creation, role editing, active status toggle, password reset, and safety guardrails (self-deactivation & last admin protection) | Pending Review |
 | **Pending** | `feature/16-lab3-release` | Lab 3 Automated Test Suite (server integration, client RTL, E2E), Reviewer Log, AI Transparency log, and Release Integration into `main` | Pending Implementation |
 
 ---
@@ -43,4 +43,12 @@
 ### IT Staff Ticket Operations & Comments/Notes - PR #38 (Issue 14 / #32)
 * **Summary**: IT Staff Ticket Operations (`GET /api/staff/tickets/:id`, `PATCH /api/staff/tickets/:id/status`, `PATCH /api/staff/tickets/:id/assign`, `PATCH /api/staff/tickets/:id/priority`, `POST /api/staff/tickets/:id/comments`), Public Comments vs. Internal Staff Notes privacy enforcement, Requester regression preservation (`GET /api/tickets/:id` omitting internal notes), Requester Public Comments (`POST /api/tickets/:id/comments`), and Requester "Problem Appears Resolved" indication (`PATCH /api/tickets/:id/indicate-resolved`).
 * **Reviewer**: @Magiciancat9
-* **Status**: Submitted for peer review on `feature/14-staff-operations`.
+* **Reviewer Verdict**: Approved
+* **Reviewer Comment**: "The staff tickets operations and the comment note are good. I also see the requester regression the look solid too."
+* **Author Response**: "OK, merge for me"
+* **Status**: Merged into `lab3-staging`.
+
+### Administrator User Management and Safety Constraints - PR #39 (Issue 15 / #33)
+* **Summary**: Administrator User Management (`GET /api/admin/users`, `POST /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/reset-password`), client UI (`UserManagement.tsx`) with search, role/status filtering, user creation, role/status editing, password reset, and safety guardrails (`SELF_DEACTIVATION_PROHIBITED`, `LAST_ADMIN_PROTECTION`, `EMAIL_ALREADY_EXISTS`).
+* **Reviewer**: @Magiciancat9
+* **Status**: Submitted for peer review on `feature/15-admin-user-management`.

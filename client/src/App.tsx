@@ -9,6 +9,7 @@ import { MyTickets } from "./components/MyTickets";
 import { TicketDetail } from "./components/TicketDetail";
 import { StaffTicketQueue } from "./components/StaffTicketQueue";
 import { StaffTicketDetail } from "./components/StaffTicketDetail";
+import { UserManagement } from "./components/UserManagement";
 import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
@@ -176,23 +177,7 @@ function AppContent() {
         )}
 
         {activeTab === "admin-users" && (
-          <div className="container py-5 text-center">
-            <div className="card shadow-sm p-5 border-0 mx-auto" style={{ maxWidth: "600px" }}>
-              <span className="fs-1 mb-2">👥</span>
-              <h2 className="h4 fw-bold mb-2">User Management</h2>
-              <p className="text-muted">
-                Administrator user management is being implemented in Issue 15.
-              </p>
-              <div>
-                <button
-                  className="btn btn-outline-success"
-                  onClick={() => handleTabChange("my-tickets")}
-                >
-                  Back to My Tickets
-                </button>
-              </div>
-            </div>
-          </div>
+          <UserManagement />
         )}
       </main>
     </div>

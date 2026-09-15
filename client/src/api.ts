@@ -647,4 +647,127 @@ export async function indicateTicketResolved(
   return result.data;
 }
 
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  department?: string | null;
+  role: UserRole;
+  isActive: boolean;
+  mustChangePassword: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AdminUsersParams {
+  search?: string;
+  role?: string;
+  isActive?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface AdminUsersResponse {
+  data: AdminUser[];
+  meta?: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
+  pagination: {
+    totalItems: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
+export async function fetchAdminUsers(
+  params: AdminUsersParams = {}
+): Promise<AdminUsersResponse> {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (params.role && params.role !== "ALL") query.set("role", params.role);
+  if (params.isActive !== undefined && params.isActive !== "ALL") query.set("isActive", params.isActive);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+  const qs = query.toString();
+  const url = `${API_URL}/api/admin/users${qs ? `?${qs}` : ""}`;
+  const response = await fetch(url, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch users");
+  }
+  return result;
+}
+
+export async function createAdminUser(data: {
+  name: string;
+  email: string;
+  department?: string;
+  role: UserRole;
+  password: string;
+  isActive?: boolean;
+}): Promise<AdminUser> {
+  const response = await fetch(`${API_URL}/api/admin/users`, {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to create user");
+  }
+  return result.data;
+}
+
+export async function updateAdminUser(
+  id: number,
+  data: {
+    name?: string;
+    email?: string;
+    department?: string | null;
+    role?: UserRole;
+    isActive?: boolean;
+  }
+): Promise<AdminUser> {
+  const response = await fetch(`${API_URL}/api/admin/users/${id}`, {
+    method: "PATCH",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to update user");
+  }
+  return result.data;
+}
+
+export async function resetAdminUserPassword(
+  id: number,
+  newPassword: string
+): Promise<{ message: string; data: AdminUser }> {
+  const response = await fetch(`${API_URL}/api/admin/users/${id}/reset-password`, {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ newPassword }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to reset password");
+  }
+  return result;
+}
+
+
 
