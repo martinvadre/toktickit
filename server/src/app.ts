@@ -14,6 +14,7 @@ import {
 } from "./utils/attachmentValidator";
 import authRoutes from "./routes/auth.routes";
 import staffRoutes from "./routes/staff.routes";
+import adminRoutes from "./routes/admin.routes";
 import { authenticate } from "./middleware/auth";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(authenticate);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Set up Multer file upload storage
 const uploadDir = path.join(process.cwd(), "uploads");
