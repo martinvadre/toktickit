@@ -8,6 +8,7 @@ import { CreateTicket } from "./components/CreateTicket";
 import { MyTickets } from "./components/MyTickets";
 import { TicketDetail } from "./components/TicketDetail";
 import { StaffTicketQueue } from "./components/StaffTicketQueue";
+import { StaffTicketDetail } from "./components/StaffTicketDetail";
 import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
@@ -163,7 +164,7 @@ function AppContent() {
 
         {activeTab === "staff-queue" && (
           selectedTicketId ? (
-            <TicketDetail
+            <StaffTicketDetail
               ticketId={selectedTicketId}
               onBack={() => setSelectedTicketId(null)}
             />

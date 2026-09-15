@@ -75,23 +75,46 @@ export interface Attachment {
   createdAt: string;
 }
 
+export interface TicketComment {
+  id: number;
+  ticketId: number;
+  authorId: number;
+  content: string;
+  isInternal: boolean;
+  createdAt: string;
+  author: {
+    id: number;
+    name: string;
+    email?: string;
+    role: UserRole;
+  };
+}
+
 export interface Ticket {
   id: number;
   ticketNumber: string;
   requesterId: number;
+  assignedStaffId?: number | null;
   categoryId: number;
   relatedSystemId: number;
   summary: string;
   description: string;
   requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  itPriority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  requesterIndicatedResolved?: boolean;
+  resolutionSummary?: string | null;
+  resolvedAt?: string | null;
+  closedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   category?: Category;
   relatedSystem?: RelatedSystem;
   requester?: RequesterUser;
+  assignedStaff?: StaffMember | null;
   attachments?: Attachment[];
   attachmentCount?: number;
+  comments?: TicketComment[];
 }
 
 export interface CreateTicketPayload {
@@ -434,7 +457,9 @@ export interface StaffTicket {
   assignedStaff?: StaffMember | null;
   category: Category;
   relatedSystem: RelatedSystem;
+  attachments?: Attachment[];
   attachmentCount: number;
+  comments?: TicketComment[];
   commentCount: number;
 }
 
@@ -514,4 +539,112 @@ export async function fetchStaffMembers(): Promise<StaffMember[]> {
   }
   return result.data;
 }
+
+export async function fetchStaffTicketDetail(ticketId: number): Promise<StaffTicket> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch ticket detail");
+  }
+  return result.data;
+}
+
+export async function updateStaffTicketStatus(
+  ticketId: number,
+  status: string,
+  resolutionSummary?: string
+): Promise<StaffTicket> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/status`, {
+    method: "PATCH",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ status, resolutionSummary }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to update ticket status");
+  }
+  return result.data;
+}
+
+export async function assignTicketStaff(
+  ticketId: number,
+  assignedStaffId: number | null
+): Promise<StaffTicket> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/assign`, {
+    method: "PATCH",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ assignedStaffId }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to assign staff");
+  }
+  return result.data;
+}
+
+export async function updateTicketPriority(
+  ticketId: number,
+  itPriority: string
+): Promise<StaffTicket> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/priority`, {
+    method: "PATCH",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ itPriority }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to update IT priority");
+  }
+  return result.data;
+}
+
+export async function addStaffComment(
+  ticketId: number,
+  content: string,
+  isInternal: boolean = false
+): Promise<TicketComment> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/comments`, {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ content, isInternal }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to add comment");
+  }
+  return result.data;
+}
+
+export async function addRequesterComment(
+  ticketId: number,
+  content: string
+): Promise<TicketComment> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/comments`, {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ content }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to add comment");
+  }
+  return result.data;
+}
+
+export async function indicateTicketResolved(
+  ticketId: number
+): Promise<{ id: number; ticketNumber: string; requesterIndicatedResolved: boolean }> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/indicate-resolved`, {
+    method: "PATCH",
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to indicate resolution");
+  }
+  return result.data;
+}
+
 
