@@ -21,6 +21,6 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-if (typeof global !== "undefined" && !(global as any).localStorage) {
-  (global as any).localStorage = localStorageMock;
+if (typeof globalThis !== "undefined" && !(globalThis as any).localStorage) {
+  (globalThis as any).localStorage = localStorageMock;
 }

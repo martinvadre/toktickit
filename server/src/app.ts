@@ -12,11 +12,16 @@ import {
   MAX_ACTIVE_ATTACHMENTS_PER_TICKET,
   validateRemovalReason,
 } from "./utils/attachmentValidator";
+import authRoutes from "./routes/auth.routes";
+import { authenticate } from "./middleware/auth";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(authenticate);
+
+app.use("/api/auth", authRoutes);
 
 // Set up Multer file upload storage
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -51,8 +56,8 @@ app.get("/api/health", (req, res) => {
 // GET /api/requesters
 app.get("/api/requesters", async (req, res) => {
   try {
-    const requesters = await prisma.requesterUser.findMany({
-      where: { isActive: true },
+    const requesters = await prisma.user.findMany({
+      where: { role: "REQUESTER", isActive: true },
       orderBy: { id: "asc" },
       select: {
         id: true,
@@ -334,7 +339,7 @@ app.post("/api/tickets", async (req, res) => {
     const { sanitizedData } = validation;
 
     // Verify active requester exists
-    const requester = await prisma.requesterUser.findFirst({
+    const requester = await prisma.user.findFirst({
       where: { id: sanitizedData.requesterId, isActive: true },
     });
     if (!requester) {

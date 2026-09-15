@@ -1,3 +1,47 @@
+export type UserRole = "REQUESTER" | "STAFF" | "ADMIN";
+
+export interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+  department?: string;
+  role: UserRole;
+  isActive: boolean;
+  mustChangePassword: boolean;
+  createdAt?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: AuthUser;
+}
+
+export function getAuthToken(): string | null {
+  if (typeof window !== "undefined" && window.localStorage) {
+    return window.localStorage.getItem("toktickit_auth_token");
+  }
+  return null;
+}
+
+export function setAuthToken(token: string | null) {
+  if (typeof window !== "undefined" && window.localStorage) {
+    if (token) {
+      window.localStorage.setItem("toktickit_auth_token", token);
+    } else {
+      window.localStorage.removeItem("toktickit_auth_token");
+    }
+  }
+}
+
+export function getAuthHeaders(extraHeaders: Record<string, string> = {}): Record<string, string> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = { ...extraHeaders };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export interface RequesterUser {
   id: number;
   name: string;
@@ -309,4 +353,57 @@ export async function checkSystem(): Promise<CheckSystemResult> {
       error: "Unable to connect to TokTickIT API",
     };
   }
+}
+
+export async function loginUser(email: string, password: string): Promise<LoginResponse> {
+  const response = await fetch(`${API_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to log in");
+  }
+  setAuthToken(result.data.token);
+  return result.data;
+}
+
+export async function logoutUser(): Promise<void> {
+  try {
+    await fetch(`${API_URL}/api/auth/logout`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+  } finally {
+    setAuthToken(null);
+  }
+}
+
+export async function fetchCurrentUser(): Promise<AuthUser> {
+  const response = await fetch(`${API_URL}/api/auth/me`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch current user");
+  }
+  return result.data;
+}
+
+export async function changeUserPassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string
+): Promise<{ message: string; user: AuthUser }> {
+  const response = await fetch(`${API_URL}/api/auth/change-password`, {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to change password");
+  }
+  return result.data;
 }
