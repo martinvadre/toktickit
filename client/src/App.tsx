@@ -7,6 +7,7 @@ import { Header } from "./components/Header";
 import { CreateTicket } from "./components/CreateTicket";
 import { MyTickets } from "./components/MyTickets";
 import { TicketDetail } from "./components/TicketDetail";
+import { StaffTicketQueue } from "./components/StaffTicketQueue";
 import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
@@ -161,23 +162,16 @@ function AppContent() {
         )}
 
         {activeTab === "staff-queue" && (
-          <div className="container py-5 text-center">
-            <div className="card shadow-sm p-5 border-0 mx-auto" style={{ maxWidth: "600px" }}>
-              <span className="fs-1 mb-2">📥</span>
-              <h2 className="h4 fw-bold mb-2">IT Staff Ticket Queue</h2>
-              <p className="text-muted">
-                The IT Staff queue is being implemented in Issue 13.
-              </p>
-              <div>
-                <button
-                  className="btn btn-outline-success"
-                  onClick={() => handleTabChange("my-tickets")}
-                >
-                  Back to My Tickets
-                </button>
-              </div>
-            </div>
-          </div>
+          selectedTicketId ? (
+            <TicketDetail
+              ticketId={selectedTicketId}
+              onBack={() => setSelectedTicketId(null)}
+            />
+          ) : (
+            <StaffTicketQueue
+              onSelectTicket={(id) => setSelectedTicketId(id)}
+            />
+          )
         )}
 
         {activeTab === "admin-users" && (

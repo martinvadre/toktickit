@@ -13,6 +13,7 @@ import {
   validateRemovalReason,
 } from "./utils/attachmentValidator";
 import authRoutes from "./routes/auth.routes";
+import staffRoutes from "./routes/staff.routes";
 import { authenticate } from "./middleware/auth";
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(authenticate);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/staff", staffRoutes);
 
 // Set up Multer file upload storage
 const uploadDir = path.join(process.cwd(), "uploads");

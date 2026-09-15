@@ -10,8 +10,8 @@
 | PR | Feature Branch | Summary & Deliverables | Reviewer Verdict |
 | :--- | :--- | :--- | :--- |
 | **[#35](https://github.com/martinvadre/toktickit/pull/35)** | `feature/11-spec-and-tests` | Sprint 3 Engineering Contract (`docs/lab-03/`), API Spec, UI Spec, and Test Matrix | Approved & Merged |
-| **[#36](https://github.com/martinvadre/toktickit/pull/36)** | `feature/12-auth-foundation` | Authentication Foundation (`/api/auth/*`), JWT token handling, User database model migration (`User` with roles `REQUESTER`, `STAFF`, `ADMIN`), and password hashing | Pending Review |
-| **Pending** | `feature/13-staff-queue` | IT Staff Ticket Queue (`/staff/queue`), multi-criteria filtering, keyword search, sorting, and pagination across all requesters | Pending Implementation |
+| **[#36](https://github.com/martinvadre/toktickit/pull/36)** | `feature/12-auth-foundation` | Authentication Foundation (`/api/auth/*`), JWT token handling, User database model migration (`User` with roles `REQUESTER`, `STAFF`, `ADMIN`), and password hashing | Approved & Merged |
+| **[#37](https://github.com/martinvadre/toktickit/pull/37)** | `feature/13-staff-queue` | IT Staff Ticket Queue (`/staff/queue`), multi-criteria filtering, keyword search, sorting, and pagination across all requesters | Pending Review |
 | **Pending** | `feature/14-staff-operations` | IT Staff Ticket Detail & Operations (`/staff/tickets/:id`), status lifecycle transitions, staff assignment, IT priority, resolution workflow, internal notes privacy | Pending Implementation |
 | **Pending** | `feature/15-admin-user-management` | Administrator User Management (`/admin/users`), user list, user creation, role editing, active status toggle, password reset, and last admin protection guardrail | Pending Implementation |
 | **Pending** | `feature/16-lab3-release` | Lab 3 Automated Test Suite (server integration, client RTL, E2E), Reviewer Log, AI Transparency log, and Release Integration into `main` | Pending Implementation |
@@ -30,4 +30,11 @@
 
 ### Authentication Foundation & User Migration - PR #36 (Issue 12 / #30)
 * **Summary**: Prisma schema evolution to `User` model (`REQUESTER`, `STAFF`, `ADMIN`), database migration, seed data, JWT endpoints (`/api/auth/*`), client `Login` and mandatory `ChangePassword` screens, and automated test suites.
-* **Status**: Submitted for peer review on `feature/12-auth-foundation`.
+* **Reviewer**: @Magiciancat9
+* **Reviewer Verdict**: Approved
+* **Status**: Merged into `lab3-staging`.
+
+### IT Staff Ticket Queue with Search, Filters, Sorting, and Pagination - PR #37 (Issue 13 / #31)
+* **Summary**: Shared IT Staff Ticket Queue (`GET /api/staff/tickets`, `GET /api/staff/members`), multi-criteria filtering (status, category, related system, assigned staff, priority), global keyword search, sorting, pagination, Zen Green desktop table & mobile cards, KPI summary counters, guardrail authorization checks, and automated API & RTL tests.
+* **Reviewer**: @Magiciancat9
+* **Status**: Submitted for peer review on `feature/13-staff-queue`.
