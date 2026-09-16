@@ -13,8 +13,9 @@
 | **[#36](https://github.com/martinvadre/toktickit/pull/36)** | `feature/12-auth-foundation` | Authentication Foundation (`/api/auth/*`), JWT token handling, User database model migration (`User` with roles `REQUESTER`, `STAFF`, `ADMIN`), and password hashing | Approved & Merged |
 | **[#37](https://github.com/martinvadre/toktickit/pull/37)** | `feature/13-staff-queue` | IT Staff Ticket Queue (`/staff/queue`), multi-criteria filtering, keyword search, sorting, and pagination across all requesters | Approved & Merged |
 | **[#38](https://github.com/martinvadre/toktickit/pull/38)** | `feature/14-staff-operations` | IT Staff Ticket Detail & Operations (`/staff/tickets/:id`), status lifecycle transitions, staff assignment, IT priority, resolution workflow, internal notes privacy | Approved & Merged |
-| **[#39](https://github.com/martinvadre/toktickit/pull/39)** | `feature/15-admin-user-management` | Administrator User Management (`/admin/users`), user list, user creation, role editing, active status toggle, password reset, and safety guardrails (self-deactivation & last admin protection) | Pending Review |
-| **Pending** | `feature/16-lab3-release` | Lab 3 Automated Test Suite (server integration, client RTL, E2E), Reviewer Log, AI Transparency log, and Release Integration into `main` | Pending Implementation |
+| **[#39](https://github.com/martinvadre/toktickit/pull/39)** | `feature/15-admin-user-management` | Administrator User Management (`/admin/users`), user list, user creation, role editing, active status toggle, password reset, and safety guardrails (self-deactivation & last admin protection) | Approved & Merged |
+| **[#40](https://github.com/martinvadre/toktickit/pull/40)** | `feature/16-lab3-release` | Lab 3 Automated Test Suite (72 server + 40 client + 7 Playwright E2E = 119 tests), Visual Evidence Screenshots (16 screenshots), Reviewer Log, AI Transparency Log, and Release Integration into `main` | Pending Review |
+| **Pending** | `lab3-staging` $\rightarrow$ `main` | Lab 3 Final Release: Full-stack authentication, RBAC, IT staff ticket operations, internal notes privacy, administrator user management | Pending PR #40 Merge |
 
 ---
 
@@ -51,4 +52,13 @@
 ### Administrator User Management and Safety Constraints - PR #39 (Issue 15 / #33)
 * **Summary**: Administrator User Management (`GET /api/admin/users`, `POST /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/reset-password`), client UI (`UserManagement.tsx`) with search, role/status filtering, user creation, role/status editing, password reset, and safety guardrails (`SELF_DEACTIVATION_PROHIBITED`, `LAST_ADMIN_PROTECTION`, `EMAIL_ALREADY_EXISTS`).
 * **Reviewer**: @Magiciancat9
-* **Status**: Submitted for peer review on `feature/15-admin-user-management`.
+* **Reviewer Verdict**: Approved
+* **Reviewer Comment**: "I have seen the overall of your codes and it look ok so I approved."
+* **Author Response**: "Thank you for the review! Merged into lab3-staging."
+* **Status**: Merged into `lab3-staging`.
+
+### Lab 3 Test Evidence, Documentation, and Release Integration - PR #40 (Issue 16 / #34)
+* **Summary**: Root Playwright test configuration, 7 Playwright E2E tests, 16 visual screenshots across desktop and mobile, full 119-test verification (72 server + 40 client + 7 E2E), updated `tests.md`, `ai-use.md`, `reviewer.md`, and `README.md`.
+* **Reviewer**: @Magiciancat9
+* **Reviewer Verdict**: Pending Review
+* **Status**: Submitted on `feature/16-lab3-release` targeting `lab3-staging`.

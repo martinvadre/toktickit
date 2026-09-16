@@ -158,6 +158,7 @@ async function main() {
       update: {
         name: user.name,
         email: user.email,
+        passwordHash: defaultPasswordHash,
         department: user.department,
         role: user.role,
         isActive: user.isActive,
