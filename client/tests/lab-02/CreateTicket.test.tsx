@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { CreateTicket } from "../../src/components/CreateTicket";
 import { RequesterProvider } from "../../src/context/RequesterContext";
 import * as api from "../../src/api";

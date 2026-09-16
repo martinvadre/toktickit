@@ -1,8 +1,11 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
+
   // 1. Seed Categories (4 required categories)
   const categories = [
     { id: 1, name: "Account and Access", isActive: true },
@@ -42,61 +45,162 @@ async function main() {
   }
   console.log(`Successfully seeded ${relatedSystems.length} related systems.`);
 
-  // 3. Seed Development Requesters (4 active, 1 inactive)
-  const requesters = [
+  // 3. Seed Users (Sprint 3: Requesters, IT Staff, Administrators, and first-login temp user)
+  const users = [
+    // Requesters (>= 4 active, 1 inactive)
     {
       id: 1,
       name: "Somchai Prasert",
       email: "somchai.pra@kmutt.ac.th",
       department: "Computer Engineering",
+      role: Role.REQUESTER,
       isActive: true,
+      mustChangePassword: false,
     },
     {
       id: 2,
       name: "Apinya Sukcharoen",
       email: "apinya.suk@kmutt.ac.th",
       department: "Information Technology",
+      role: Role.REQUESTER,
       isActive: true,
+      mustChangePassword: false,
     },
     {
       id: 3,
       name: "Kittisak Rattana",
       email: "kittisak.rat@kmutt.ac.th",
       department: "Electrical Engineering",
+      role: Role.REQUESTER,
       isActive: true,
+      mustChangePassword: false,
     },
     {
       id: 4,
       name: "Nattaporn Chaidee",
       email: "nattaporn.cha@kmutt.ac.th",
       department: "Mechanical Engineering",
+      role: Role.REQUESTER,
       isActive: true,
+      mustChangePassword: false,
     },
     {
       id: 5,
       name: "Wandee InactiveUser",
       email: "wandee.old@kmutt.ac.th",
       department: "Former Staff",
+      role: Role.REQUESTER,
       isActive: false,
+      mustChangePassword: false,
+    },
+    // IT Staff (>= 3 active, 1 inactive)
+    {
+      id: 6,
+      name: "Supachai Techavichit",
+      email: "staff.supachai@kmutt.ac.th",
+      department: "IT Operations",
+      role: Role.STAFF,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      id: 7,
+      name: "Manee Kerdphon",
+      email: "staff.manee@kmutt.ac.th",
+      department: "IT Helpdesk",
+      role: Role.STAFF,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      id: 8,
+      name: "Chayanon Siriporn",
+      email: "staff.chayanon@kmutt.ac.th",
+      department: "Network Operations",
+      role: Role.STAFF,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      id: 9,
+      name: "Niran InactiveStaff",
+      email: "staff.inactive@kmutt.ac.th",
+      department: "Former IT Staff",
+      role: Role.STAFF,
+      isActive: false,
+      mustChangePassword: false,
+    },
+    // Administrator (>= 1 active)
+    {
+      id: 10,
+      name: "Admin System",
+      email: "admin@kmutt.ac.th",
+      department: "IT Governance",
+      role: Role.ADMIN,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    // First-Login Password Change Test User
+    {
+      id: 11,
+      name: "First Login User",
+      email: "firstlogin@kmutt.ac.th",
+      department: "Academic Affairs",
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: true,
     },
   ];
 
-  for (const requester of requesters) {
-    const result = await prisma.requesterUser.upsert({
-      where: { id: requester.id },
+  for (const user of users) {
+    const result = await prisma.user.upsert({
+      where: { id: user.id },
       update: {
-        name: requester.name,
-        email: requester.email,
-        department: requester.department,
-        isActive: requester.isActive,
+        name: user.name,
+        email: user.email,
+        passwordHash: defaultPasswordHash,
+        department: user.department,
+        role: user.role,
+        isActive: user.isActive,
+        mustChangePassword: user.mustChangePassword,
       },
-      create: requester,
+      create: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        passwordHash: defaultPasswordHash,
+        department: user.department,
+        role: user.role,
+        isActive: user.isActive,
+        mustChangePassword: user.mustChangePassword,
+      },
     });
+
+    // Also keep RequesterUser synchronized for Lab 2 development requester fallback
+    if (user.role === Role.REQUESTER) {
+      await prisma.requesterUser.upsert({
+        where: { id: user.id },
+        update: {
+          name: user.name,
+          email: user.email,
+          department: user.department,
+          isActive: user.isActive,
+        },
+        create: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          department: user.department,
+          isActive: user.isActive,
+        },
+      });
+    }
+
     console.log(
-      `Seeded development requester: ${result.name} (ID: ${result.id}, active: ${result.isActive})`
+      `Seeded user: ${result.name} (${result.email}) [Role: ${result.role}, active: ${result.isActive}, mustChangePassword: ${result.mustChangePassword}]`
     );
   }
-  console.log(`Successfully seeded ${requesters.length} development requesters.`);
+  console.log(`Successfully seeded ${users.length} users.`);
 }
 
 main()
