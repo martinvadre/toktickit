@@ -114,17 +114,119 @@ Automated testing for Lab 3 spans three complementary layers:
 
 ## 5. Requirement Traceability Matrix
 
-| Requirement / Acceptance Criterion | Backend Test Cases | Frontend Test Cases | E2E Scenario | Planned Status |
+| Requirement / Acceptance Criterion | Backend Test Cases | Frontend Test Cases | E2E Scenario | Execution Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **AC-01 (Valid Login & Session Token)** | `API-01`, `API-04`, `API-05`, `API-08`, `API-09`, `API-10` | `UI-01`, `UI-02`, `UI-03` | `E2E-01` | Planned |
-| **AC-02 (Mandatory Password Change)** | `API-06`, `API-07`, `API-34` | `UI-05`, `UI-06`, `UI-07`, `UI-18` | `E2E-01` | Planned |
-| **AC-03 (Requester Ownership Protection)** | `API-11` | `UI-03` | `E2E-01`, `E2E-02` | Planned |
-| **AC-04 (Internal Notes Isolation)** | `API-23`, `API-24`, `API-25` | `UI-14` | `E2E-02` | Planned |
-| **AC-05 (Inactive Account Lockout)** | `API-02`, `API-03` | `UI-04` | `E2E-01` | Planned |
-| **AC-06 (Staff Ticket Queue & Search)** | `API-12`, `API-13`, `API-14`, `API-15`, `API-16` | `UI-08`, `UI-09`, `UI-10` | `E2E-02` | Planned |
-| **AC-07 (Status Progression & Resolution Summary)** | `API-18`, `API-19`, `API-20` | `UI-12` | `E2E-02` | Planned |
-| **AC-08 (Staff Assignment & IT Priority)** | `API-17`, `API-21`, `API-22` | `UI-11`, `UI-13` | `E2E-02` | Planned |
-| **AC-09 (Admin User Listing & Search)** | `API-28` | `UI-15` | `E2E-03` | Planned |
-| **AC-10 (Admin Safety Guardrails)** | `API-31`, `API-32`, `API-33` | `UI-17` | `E2E-03` | Planned |
-| **AC-11 (User Creation & Email Uniqueness)** | `API-29`, `API-30` | `UI-16` | `E2E-03` | Planned |
-| **AC-12 (Requester Regression & Public Comments)** | `API-26`, `API-27` | `UI-11` | `E2E-02` | Planned |
+| **AC-01 (Valid Login & Session Token)** | `API-01`, `API-04`, `API-05`, `API-08`, `API-09`, `API-10` | `UI-01`, `UI-02`, `UI-03` | `E2E-01` | **VERIFIED (100% Pass)** |
+| **AC-02 (Mandatory Password Change)** | `API-06`, `API-07`, `API-34` | `UI-05`, `UI-06`, `UI-07`, `UI-18` | `E2E-01` | **VERIFIED (100% Pass)** |
+| **AC-03 (Requester Ownership Protection)** | `API-11` | `UI-03` | `E2E-01`, `E2E-02` | **VERIFIED (100% Pass)** |
+| **AC-04 (Internal Notes Isolation)** | `API-23`, `API-24`, `API-25` | `UI-14` | `E2E-02` | **VERIFIED (100% Pass)** |
+| **AC-05 (Inactive Account Lockout)** | `API-02`, `API-03` | `UI-04` | `E2E-01` | **VERIFIED (100% Pass)** |
+| **AC-06 (Staff Ticket Queue & Search)** | `API-12`, `API-13`, `API-14`, `API-15`, `API-16` | `UI-08`, `UI-09`, `UI-10` | `E2E-02` | **VERIFIED (100% Pass)** |
+| **AC-07 (Status Progression & Resolution Summary)** | `API-18`, `API-19`, `API-20` | `UI-12` | `E2E-02` | **VERIFIED (100% Pass)** |
+| **AC-08 (Staff Assignment & IT Priority)** | `API-17`, `API-21`, `API-22` | `UI-11`, `UI-13` | `E2E-02` | **VERIFIED (100% Pass)** |
+| **AC-09 (Admin User Listing & Search)** | `API-28` | `UI-15` | `E2E-03` | **VERIFIED (100% Pass)** |
+| **AC-10 (Admin Safety Guardrails)** | `API-31`, `API-32`, `API-33` | `UI-17` | `E2E-03` | **VERIFIED (100% Pass)** |
+| **AC-11 (User Creation & Email Uniqueness)** | `API-29`, `API-30` | `UI-16` | `E2E-03` | **VERIFIED (100% Pass)** |
+| **AC-12 (Requester Regression & Public Comments)** | `API-26`, `API-27` | `UI-11` | `E2E-02` | **VERIFIED (100% Pass)** |
+
+---
+
+## 6. Execution Evidence & Verification Summary
+
+Across all layers of the testing pyramid, **119 automated tests** run and pass with 0 failures:
+
+| Test Suite Layer | Runner / Tool | Test Files | Total Tests | Passed | Failed | Execution Time |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Server Integration & Unit** | Vitest + Supertest | 17 | 72 | 72 | 0 | ~8.6s |
+| **Client Component & RTL** | Vitest + Testing Library | 11 | 40 | 40 | 0 | ~2.2s |
+| **End-to-End User Workflows** | Playwright (Chromium) | 3 | 7 | 7 | 0 | ~12.3s |
+| **TOTAL** | | **31** | **119** | **119** | **0** | **100% PASS** |
+
+### 6.1. Server Test Suite Output (`npm run test:server`)
+```text
+ RUN  v2.1.9 /Users/martin/Uni/CPE334/toktickit/server
+
+ ✓ tests/lab-03/auth.api.test.ts (12 tests) 1864ms
+ ✓ tests/lab-03/staff-queue.api.test.ts (11 tests) 197ms
+ ✓ tests/lab-03/users-admin.api.test.ts (7 tests) 910ms
+ ✓ tests/lab-03/staff-ticket-detail.api.test.ts (6 tests) 138ms
+ ✓ tests/lab-03/comments-notes.api.test.ts (5 tests) 122ms
+ ✓ tests/lab-02/attachments.api.test.ts (5 tests) 108ms
+ ✓ tests/lab-02/my-tickets.api.test.ts (3 tests) 138ms
+ ✓ tests/lab-03/authorization.api.test.ts (5 tests) 38ms
+ ✓ tests/lab-02/create-ticket.api.test.ts (2 tests) 96ms
+ ✓ tests/lab-02/validation.unit.test.ts (4 tests) 2ms
+ ✓ tests/lab-02/ticket-detail.api.test.ts (2 tests) 62ms
+ ✓ tests/lab-02/reference-data.api.test.ts (2 tests) 25ms
+ ✓ tests/lab-02/attachment-validator.unit.test.ts (3 tests) 2ms
+ ✓ tests/lab-01/categories.test.ts (1 test) 13ms
+ ✓ tests/lab-02/requesters.api.test.ts (1 test) 33ms
+ ✓ tests/lab-02/ticket-number.unit.test.ts (2 tests) 2ms
+ ✓ tests/lab-01/health.test.ts (1 test) 12ms
+
+ Test Files  17 passed (17)
+      Tests  72 passed (72)
+   Duration  8.64s
+```
+
+### 6.2. Client Test Suite Output (`npm run test:client`)
+```text
+ RUN  v2.1.9 /Users/martin/Uni/CPE334/toktickit/client
+
+ ✓ tests/lab-02/MyTickets.test.tsx (3 tests) 126ms
+ ✓ tests/lab-03/ChangePassword.test.tsx (4 tests) 199ms
+ ✓ tests/lab-03/Login.test.tsx (5 tests) 263ms
+ ✓ tests/lab-02/TicketDetail.test.tsx (3 tests) 268ms
+ ✓ tests/lab-03/StaffTicketDetail.test.tsx (5 tests) 295ms
+ ✓ tests/lab-03/UserManagement.test.tsx (5 tests) 343ms
+ ✓ tests/lab-03/StaffTicketQueue.test.tsx (7 tests) 371ms
+ ✓ tests/lab-02/CreateTicket.test.tsx (2 tests) 141ms
+ ✓ tests/lab-02/RequesterContext.test.tsx (1 test) 65ms
+ ✓ tests/lab-02/RequesterSelect.test.tsx (2 tests) 161ms
+ ✓ tests/lab-01/App.test.tsx (3 tests) 160ms
+
+ Test Files  11 passed (11)
+      Tests  40 passed (40)
+   Duration  2.21s
+```
+
+### 6.3. Playwright E2E Test Suite Output (`npm run test:e2e`)
+```text
+Running 7 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/lab-03/authentication.spec.ts:14:7 › E2E-01: Authentication & Authorization Lifecycle › TC-AUTH-01: Renders login screen and captures initial state (241ms)
+  ✓  2 [chromium] › e2e/lab-03/authentication.spec.ts:21:7 › E2E-01: Authentication & Authorization Lifecycle › TC-AUTH-02: Rejects invalid credentials with error alert (348ms)
+  ✓  3 [chromium] › e2e/lab-03/authentication.spec.ts:31:7 › E2E-01: Authentication & Authorization Lifecycle › TC-AUTH-03: Rejects inactive user login with lockout error (AC-05) (307ms)
+  ✓  4 [chromium] › e2e/lab-03/authentication.spec.ts:42:7 › E2E-01: Authentication & Authorization Lifecycle › TC-AUTH-04: Enforces mandatory first-login password change and enters application (AC-02) (831ms)
+  ✓  5 [chromium] › e2e/lab-03/authentication.spec.ts:70:7 › E2E-01: Authentication & Authorization Lifecycle › TC-AUTH-05: Verifies role-based navigation bar visibility (1.0s)
+  ✓  6 [chromium] › e2e/lab-03/staff-ticket-flow.spec.ts:14:7 › E2E-02: IT Staff Ticket Lifecycle & Requester Privacy › Complete flow: Ticket creation, Staff queue triage, Operations, and Privacy verification (2.5s)
+  ✓  7 [chromium] › e2e/lab-03/user-administration.spec.ts:13:7 › E2E-03: Administrator User Management & Safety Constraints › Complete Admin flow: User list, Create, Search, Edit safety guardrail, and Password reset (3.0s)
+
+  7 passed (12.3s)
+```
+
+---
+
+## 7. Captured Visual Evidence Screenshots
+
+All 16 visual evidence screenshots are saved in `artifacts/lab-03/screenshots/`:
+
+| Subsystem | Screenshot Path | Description & AC |
+| :--- | :--- | :--- |
+| **Authentication** | `artifacts/lab-03/screenshots/authentication/login-screen.png` | Zen Green initial login form |
+| **Authentication** | `artifacts/lab-03/screenshots/authentication/login-error-inactive.png` | Lockout message for deactivated account (AC-05) |
+| **Authentication** | `artifacts/lab-03/screenshots/authentication/password-change-mandatory.png` | Enforced first-login password change form (AC-02) |
+| **Authentication** | `artifacts/lab-03/screenshots/authentication/password-change-success.png` | Success alert on password update completion |
+| **Staff Queue** | `artifacts/lab-03/screenshots/staff-queue/queue-desktop.png` | Desktop view ($\ge 768\text{px}$) of IT Staff ticket triage table (AC-06) |
+| **Staff Queue** | `artifacts/lab-03/screenshots/staff-queue/queue-filters.png` | Multi-criteria filter toolbar and KPI counter metrics |
+| **Staff Queue** | `artifacts/lab-03/screenshots/staff-queue/queue-mobile.png` | Responsive mobile card layout ($< 768\text{px}$) |
+| **Staff Ticket Detail** | `artifacts/lab-03/screenshots/staff-ticket-detail/detail-overview.png` | Ticket overview, assign staff dropdown, IT Priority (AC-08) |
+| **Staff Ticket Detail** | `artifacts/lab-03/screenshots/staff-ticket-detail/detail-internal-notes.png` | Internal staff note with yellow privacy badge (AC-04) |
+| **Staff Ticket Detail** | `artifacts/lab-03/screenshots/staff-ticket-detail/detail-resolution-modal.png` | Mandatory resolution summary modal dialog (AC-07) |
+| **Staff Ticket Detail** | `artifacts/lab-03/screenshots/staff-ticket-detail/requester-view-isolation.png` | Requester regression view proving internal notes are hidden (AC-04) |
+| **User Administration** | `artifacts/lab-03/screenshots/user-management/user-list-desktop.png` | Admin user table on desktop with search and filter toolbar (AC-09) |
+| **User Administration** | `artifacts/lab-03/screenshots/user-management/user-list-mobile.png` | Responsive user management table on mobile ($< 768\text{px}$) |
+| **User Administration** | `artifacts/lab-03/screenshots/user-management/create-user-modal.png` | Create New User Account modal with role & password (AC-11) |
+| **User Administration** | `artifacts/lab-03/screenshots/user-management/edit-user-safety-guardrail.png` | Edit user modal showing self-deactivation prevented guardrail (AC-10) |
+| **User Administration** | `artifacts/lab-03/screenshots/user-management/reset-password-modal.png` | Reset User Password modal with mandatory change requirement (AC-02) |
+

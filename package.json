@@ -1,0 +1,13 @@
+{
+  "name": "toktickit",
+  "private": true,
+  "scripts": {
+    "test": "npm --prefix server run test && npm --prefix client run test && playwright test",
+    "test:server": "npm --prefix server run test",
+    "test:client": "npm --prefix client run test",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}
