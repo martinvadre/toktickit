@@ -15,7 +15,7 @@
 | **[#38](https://github.com/martinvadre/toktickit/pull/38)** | `feature/14-staff-operations` | IT Staff Ticket Detail & Operations (`/staff/tickets/:id`), status lifecycle transitions, staff assignment, IT priority, resolution workflow, internal notes privacy | Approved & Merged |
 | **[#39](https://github.com/martinvadre/toktickit/pull/39)** | `feature/15-admin-user-management` | Administrator User Management (`/admin/users`), user list, user creation, role editing, active status toggle, password reset, and safety guardrails (self-deactivation & last admin protection) | Approved & Merged |
 | **[#40](https://github.com/martinvadre/toktickit/pull/40)** | `feature/16-lab3-release` | Lab 3 Automated Test Suite (72 server + 40 client + 7 Playwright E2E = 119 tests), Visual Evidence Screenshots (16 screenshots), Reviewer Log, AI Transparency Log, and Release Integration into `main` | Approved & Merged |
-| **Pending** | `lab3-staging` $\rightarrow$ `main` | Lab 3 Final Release: Full-stack authentication, RBAC, IT staff ticket operations, internal notes privacy, administrator user management | Pending Release PR |
+| **[#41](https://github.com/martinvadre/toktickit/pull/41)** | `lab3-staging` $\rightarrow$ `main` | Lab 3 Final Release: Full-stack authentication, RBAC, IT staff ticket operations, internal notes privacy, administrator user management | Pending Review |
 
 ---
 
@@ -64,3 +64,9 @@
 * **Reviewer Comment**: "Your  Lab 3 Test Evidence, Reviewer Log, AI Use Log, Screenshots, and Release Integration look good, Approve"
 * **Author Response**: "Thank you, merge loey krub"
 * **Status**: Merged into `lab3-staging`.
+
+### Lab 3 Final Release to Main - PR #41
+* **Summary**: Production release merging `lab3-staging` into `main`, consolidating all Sprint 3 deliverables, 119 passing automated tests (100% pass rate), 16 visual evidence screenshots, documentation, and safety guardrails.
+* **Reviewer**: @Magiciancat9
+* **Reviewer Verdict**: Pending Review
+* **Status**: Open on `main` via PR #41.
