@@ -3,6 +3,7 @@ import { Role } from "@prisma/client";
 import prisma from "../prisma";
 import bcrypt from "bcryptjs";
 import { AuthenticatedRequest, requireRole } from "../middleware/auth";
+import { getStaffDashboardData } from "./staff.routes";
 
 const router = Router();
 
@@ -368,6 +369,47 @@ router.post("/users/:id/reset-password", async (req: AuthenticatedRequest, res: 
     console.error("Admin password reset error:", error);
     return res.status(500).json({
       error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to reset user password." },
+    });
+  }
+});
+
+/**
+ * GET /api/admin/dashboard
+ * Retrieve comprehensive operational metrics plus administrator user account statistics.
+ */
+router.get("/dashboard", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const [staffData, totalUsers, activeStaff, activeAdmins, activeRequesters, inactiveUsers] =
+      await Promise.all([
+        getStaffDashboardData(req.user!.id),
+        prisma.user.count(),
+        prisma.user.count({ where: { role: Role.STAFF, isActive: true } }),
+        prisma.user.count({ where: { role: Role.ADMIN, isActive: true } }),
+        prisma.user.count({ where: { role: Role.REQUESTER, isActive: true } }),
+        prisma.user.count({ where: { isActive: false } }),
+      ]);
+
+    return res.status(200).json({
+      data: {
+        staffMetrics: staffData.metrics,
+        urgentTickets: staffData.urgentTickets,
+        recentTickets: staffData.recentTickets,
+        userSummary: {
+          totalUsers,
+          activeStaff,
+          activeAdmins,
+          activeRequesters,
+          inactiveUsers,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Admin dashboard error:", error);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to retrieve admin dashboard data.",
+      },
     });
   }
 });
