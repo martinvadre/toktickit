@@ -13,19 +13,24 @@ import {
 
 interface StaffTicketQueueProps {
   onSelectTicket?: (ticketId: number) => void;
+  initialFilter?: {
+    status?: string;
+    assignedStaffId?: string;
+    itPriority?: string;
+  };
 }
 
-export const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ onSelectTicket }) => {
+export const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ onSelectTicket, initialFilter }) => {
   const { user } = useAuth();
 
   // Filters & Pagination State
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState(initialFilter?.status || "ALL");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [selectedSystem, setSelectedSystem] = useState("ALL");
-  const [selectedAssignee, setSelectedAssignee] = useState("ALL");
+  const [selectedAssignee, setSelectedAssignee] = useState(initialFilter?.assignedStaffId || "ALL");
   const [selectedReqPriority, setSelectedReqPriority] = useState("ALL");
-  const [selectedItPriority, setSelectedItPriority] = useState("ALL");
+  const [selectedItPriority, setSelectedItPriority] = useState(initialFilter?.itPriority || "ALL");
 
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -534,7 +539,12 @@ export const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ onSelectTick
               </thead>
               <tbody>
                 {tickets.map((t) => (
-                  <tr key={t.id}>
+                  <tr
+                    key={t.id}
+                    data-testid={`ticket-row-${t.id}`}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => onSelectTicket && onSelectTicket(t.id)}
+                  >
                     <td>
                       <button
                         type="button"

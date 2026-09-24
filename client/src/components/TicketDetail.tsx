@@ -10,6 +10,7 @@ import {
   addRequesterComment,
   indicateTicketResolved,
 } from "../api";
+import { ActionsTakenSection } from "./ActionsTakenSection";
 
 interface TicketDetailProps {
   ticketId: number;
@@ -299,7 +300,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
   const isAttachmentLimitReached = activeCount >= 5;
 
   return (
-    <div className="container py-4">
+    <div className="container py-4" data-testid="ticket-detail-view">
       {/* Navigation Breadcrumb */}
       <div className="d-flex align-items-center justify-content-between mb-4">
         <nav aria-label="breadcrumb">
@@ -410,6 +411,14 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
             )}
           </div>
         </div>
+
+        {/* Actions Taken Section (Lab 4 / Requester Read-Only View) */}
+        <ActionsTakenSection
+          ticketId={ticket.id}
+          actions={ticket.actionsTaken || []}
+          isStaff={false}
+          onActionSaved={loadTicket}
+        />
 
         {/* Attachments Management Section */}
         <div className="border-top pt-4">

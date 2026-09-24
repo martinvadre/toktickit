@@ -12,6 +12,33 @@ import {
   downloadAttachment,
   Attachment,
 } from "../api";
+import { ActionsTakenSection } from "./ActionsTakenSection";
+
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  NEW: ["OPEN", "ASSIGNED", "IN_PROGRESS", "CANCELLED"],
+  OPEN: ["IN_PROGRESS", "PENDING_REQUESTER", "RESOLVED", "CANCELLED"],
+  ASSIGNED: ["IN_PROGRESS", "PENDING_REQUESTER", "RESOLVED", "CANCELLED"],
+  IN_PROGRESS: ["OPEN", "ASSIGNED", "PENDING_REQUESTER", "RESOLVED", "CANCELLED"],
+  WAITING_FOR_REQUESTER: ["IN_PROGRESS", "RESOLVED", "CANCELLED"],
+  PENDING_REQUESTER: ["IN_PROGRESS", "RESOLVED", "CANCELLED"],
+  RESOLVED: ["CLOSED", "REOPENED"],
+  REOPENED: ["IN_PROGRESS", "RESOLVED", "CANCELLED"],
+  CLOSED: [],
+  CANCELLED: [],
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  NEW: "New",
+  OPEN: "Open",
+  ASSIGNED: "Assigned",
+  IN_PROGRESS: "In Progress",
+  PENDING_REQUESTER: "Pending Requester",
+  WAITING_FOR_REQUESTER: "Pending Requester",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
+  REOPENED: "Reopened",
+  CANCELLED: "Cancelled",
+};
 
 interface StaffTicketDetailProps {
   ticketId: number;
@@ -33,6 +60,7 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [updatingAssignee, setUpdatingAssignee] = useState(false);
   const [updatingPriority, setUpdatingPriority] = useState(false);
+  const [conflictError, setConflictError] = useState<string | null>(null);
 
   // Resolution Modal state
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -83,11 +111,16 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
     }
 
     setUpdatingStatus(true);
+    setConflictError(null);
     try {
-      await updateStaffTicketStatus(ticket.id, nextStatus);
+      await updateStaffTicketStatus(ticket.id, nextStatus, undefined, ticket.updatedAt);
       await loadData();
     } catch (err: any) {
-      alert(err.message || "Failed to update status.");
+      if (err.status === 409 || err.code === "STALE_UPDATE_CONFLICT") {
+        setConflictError(err.message || "This ticket has been modified by another user. Please refresh and review latest changes.");
+      } else {
+        alert(err.message || "Failed to update status.");
+      }
     } finally {
       setUpdatingStatus(false);
     }
@@ -104,14 +137,20 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
 
     setUpdatingStatus(true);
     setResolutionError(null);
+    setConflictError(null);
 
     try {
-      await updateStaffTicketStatus(ticket.id, pendingStatus, resolutionSummary.trim());
+      await updateStaffTicketStatus(ticket.id, pendingStatus, resolutionSummary.trim(), ticket.updatedAt);
       setPendingStatus(null);
       setResolutionSummary("");
       await loadData();
     } catch (err: any) {
-      setResolutionError(err.message || "Failed to submit resolution.");
+      if (err.status === 409 || err.code === "STALE_UPDATE_CONFLICT") {
+        setPendingStatus(null);
+        setConflictError(err.message || "This ticket has been modified by another user. Please refresh and review latest changes.");
+      } else {
+        setResolutionError(err.message || "Failed to submit resolution.");
+      }
     } finally {
       setUpdatingStatus(false);
     }
@@ -306,6 +345,31 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
         </div>
       </div>
 
+      {/* Conflict Alert Banner (UI-07 / AC-10) */}
+      {conflictError && (
+        <div
+          className="alert alert-danger border-start border-4 border-danger shadow-sm py-3 px-4 mb-4 d-flex justify-content-between align-items-center"
+          role="alert"
+          data-testid="conflict-alert-banner"
+        >
+          <div>
+            <strong className="d-block text-danger-emphasis">Stale Update Conflict</strong>
+            <span className="small text-danger">{conflictError}</span>
+          </div>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-danger"
+            onClick={() => {
+              setConflictError(null);
+              loadData();
+            }}
+            data-testid="refresh-conflict-btn"
+          >
+            Refresh Ticket
+          </button>
+        </div>
+      )}
+
       {/* Requester Indicated Resolved Banner (BR-05 / AC-12) */}
       {ticket.requesterIndicatedResolved && (
         <div className="alert alert-warning border-start border-4 border-warning shadow-sm py-3 px-4 mb-4 d-flex align-items-center gap-3" role="alert">
@@ -334,14 +398,13 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
               disabled={updatingStatus || ticket.currentStatus === "CLOSED" || ticket.currentStatus === "CANCELLED"}
               data-testid="status-select"
             >
-              <option value="NEW">New</option>
-              <option value="OPEN">Open</option>
-              <option value="ASSIGNED">Assigned</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="PENDING_REQUESTER">Pending Requester</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="CLOSED">Closed</option>
-              <option value="CANCELLED">Cancelled</option>
+              {[ticket.currentStatus, ...(ALLOWED_TRANSITIONS[ticket.currentStatus] || [])]
+                .filter((val, idx, arr) => arr.indexOf(val) === idx)
+                .map((st) => (
+                  <option key={st} value={st}>
+                    {STATUS_LABELS[st] || st.replace("_", " ")}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -420,6 +483,16 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
               </div>
             )}
           </div>
+
+          {/* Actions Taken Section (Lab 4 / BR-01, BR-02, BR-03, BR-04) */}
+          <ActionsTakenSection
+            ticketId={ticket.id}
+            actions={ticket.actionsTaken || []}
+            isStaff={true}
+            currentUserId={user?.id}
+            staffList={staffList}
+            onActionSaved={loadData}
+          />
 
           {/* Attachments Section */}
           <div className="card shadow-sm border-0 bg-white p-4 mb-4">

@@ -15,6 +15,7 @@ import {
 import authRoutes from "./routes/auth.routes";
 import staffRoutes from "./routes/staff.routes";
 import adminRoutes from "./routes/admin.routes";
+import requesterRoutes from "./routes/requester.routes";
 import { authenticate } from "./middleware/auth";
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(authenticate);
 app.use("/api/auth", authRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/requester", requesterRoutes);
 
 // Set up Multer file upload storage
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -308,6 +310,12 @@ app.get("/api/tickets/:id", async (req, res) => {
             author: { select: { id: true, name: true, role: true } },
           },
         },
+        actionsTaken: {
+          orderBy: { actionDateTime: "asc" },
+          include: {
+            performedBy: { select: { id: true, name: true, email: true, role: true } },
+          },
+        },
       },
     });
 
@@ -339,6 +347,57 @@ app.get("/api/tickets/:id", async (req, res) => {
         code: "SERVER_ERROR",
         message: "Failed to get ticket detail.",
       },
+    });
+  }
+});
+
+// GET /api/tickets/:id/actions-taken (Requester & Staff View Actions Taken)
+app.get("/api/tickets/:id/actions-taken", async (req, res) => {
+  try {
+    const authenticatedUser = (req as any).user;
+    if (!authenticatedUser) {
+      return res.status(401).json({
+        error: { code: "UNAUTHORIZED", message: "Authentication required." },
+      });
+    }
+
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const isStaffOrAdmin = authenticatedUser.role === "STAFF" || authenticatedUser.role === "ADMIN";
+    if (!isStaffOrAdmin && ticket.requesterId !== authenticatedUser.id) {
+      return res.status(403).json({
+        error: { code: "FORBIDDEN", message: "You do not have permission to view actions taken on this ticket." },
+      });
+    }
+
+    const actions = await prisma.actionTaken.findMany({
+      where: { ticketId },
+      orderBy: { actionDateTime: "asc" },
+      include: {
+        performedBy: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(200).json({ data: actions });
+  } catch (error) {
+    console.error("Requester fetch actions taken error:", error);
+    return res.status(500).json({
+      error: { code: "SERVER_ERROR", message: "Failed to fetch actions taken." },
     });
   }
 });
@@ -445,6 +504,7 @@ app.patch("/api/tickets/:id/indicate-resolved", async (req, res) => {
       data: {
         id: updated.id,
         ticketNumber: updated.ticketNumber,
+        currentStatus: updated.currentStatus,
         requesterIndicatedResolved: updated.requesterIndicatedResolved,
       },
     });
