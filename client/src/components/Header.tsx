@@ -81,6 +81,20 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           <nav className="nav d-none d-sm-flex gap-1">
+            {/* Dashboard Tab for all authenticated users */}
+            <button
+              type="button"
+              className={`nav-link btn btn-link text-decoration-none ${
+                activeTab === "dashboard"
+                  ? "active text-white fw-bold bg-white bg-opacity-20 rounded"
+                  : "text-white-50"
+              }`}
+              onClick={() => onSelectTab && onSelectTab("dashboard")}
+              data-testid="nav-dashboard-btn"
+            >
+              📊 Dashboard
+            </button>
+
             {/* IT Staff & Admin: Staff Queue */}
             {isStaffOrAdmin && (
               <button
