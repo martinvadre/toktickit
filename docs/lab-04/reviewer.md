@@ -21,7 +21,7 @@
 
 ## 2. Review Comments Log (Lab 4)
 
-### Sprint Specification and Test Plan - PR #48 (Issue 17 / #42)
+### Sprint Specification and Test Plan - PR #48 (Issue 17 / #55)
 * **Summary**: Sprint 4 Engineering Specification (`docs/lab-04/specification.md`), REST API Contract (`api-spec.md`), Zen Green UI Specification (`ui-spec.md`), and Test Traceability Matrix (`tests.md`).
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved
@@ -29,7 +29,7 @@
 * **Author Response**: "Thank you for the review, merging into lab4-staging now."
 * **Status**: Merged into `lab4-staging`.
 
-### Actions Taken Foundation & REST APIs - PR #49 (Issue 18 / #43)
+### Actions Taken Foundation & REST APIs - PR #49 (Issue 18 / #56)
 * **Summary**: Prisma schema evolution adding `ActionTaken` model and `ActionStatus` enum, non-destructive migration, seed data with multiple actions per ticket, REST endpoints (`/api/tickets/:id/actions-taken`, `/api/staff/tickets/:id/actions-taken`), inactive staff rejection, follow-up note validation, and API tests.
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved
@@ -37,7 +37,7 @@
 * **Author Response**: "Merged into lab4-staging."
 * **Status**: Merged into `lab4-staging`.
 
-### Actions Taken User Interface - PR #50 (Issue 19 / #44)
+### Actions Taken User Interface - PR #50 (Issue 19 / #57)
 * **Summary**: Actions Taken section on IT Staff Ticket Detail with list, record action modal, edit modal, status transitions (Completed/Cancelled), and Requester read-only view on Requester Ticket Detail with full RTL test suite.
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved
@@ -45,7 +45,7 @@
 * **Author Response**: "Thanks! Merging into lab4-staging."
 * **Status**: Merged into `lab4-staging`.
 
-### Ticket Workflow & Resolution Gate - PR #51 (Issue 20 / #45)
+### Ticket Workflow & Resolution Gate - PR #51 (Issue 20 / #58)
 * **Summary**: Backend status transition validation, formal resolution summary gate for `RESOLVED` and `CLOSED`, optimistic concurrency conflict detection (409 Conflict), dynamic UI status buttons, and workflow tests.
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved
@@ -53,7 +53,7 @@
 * **Author Response**: "Merged into lab4-staging."
 * **Status**: Merged into `lab4-staging`.
 
-### Role-Appropriate Dashboards - PR #52 (Issue 21 / #46)
+### Role-Appropriate Dashboards - PR #52 (Issue 21 / #59)
 * **Summary**: Requester, IT Staff, and Administrator dashboard endpoints, authoritative SQL aggregation metrics, recent/urgent tickets list, quick action shortcuts, Header dashboard navigation, drill-down links to filtered lists, and UI tests.
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved
@@ -61,7 +61,7 @@
 * **Author Response**: "Merged into lab4-staging."
 * **Status**: Merged into `lab4-staging`.
 
-### Final Hardening, Evidence & Release Integration - PR #53 (Issue 22 / #47)
+### Final Hardening, Evidence & Release Integration - PR #53 (Issue 22 / #60)
 * **Summary**: Playwright E2E suites (`actions-taken-flow.spec.ts`, `ticket-resolution.spec.ts`, `dashboards.spec.ts`), visual screenshot artifacts across desktop/tablet/mobile viewports, full regression test execution, README updates, and report generation.
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved
