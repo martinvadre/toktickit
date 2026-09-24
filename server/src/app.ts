@@ -308,6 +308,12 @@ app.get("/api/tickets/:id", async (req, res) => {
             author: { select: { id: true, name: true, role: true } },
           },
         },
+        actionsTaken: {
+          orderBy: { actionDateTime: "asc" },
+          include: {
+            performedBy: { select: { id: true, name: true, email: true, role: true } },
+          },
+        },
       },
     });
 
@@ -339,6 +345,57 @@ app.get("/api/tickets/:id", async (req, res) => {
         code: "SERVER_ERROR",
         message: "Failed to get ticket detail.",
       },
+    });
+  }
+});
+
+// GET /api/tickets/:id/actions-taken (Requester & Staff View Actions Taken)
+app.get("/api/tickets/:id/actions-taken", async (req, res) => {
+  try {
+    const authenticatedUser = (req as any).user;
+    if (!authenticatedUser) {
+      return res.status(401).json({
+        error: { code: "UNAUTHORIZED", message: "Authentication required." },
+      });
+    }
+
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const isStaffOrAdmin = authenticatedUser.role === "STAFF" || authenticatedUser.role === "ADMIN";
+    if (!isStaffOrAdmin && ticket.requesterId !== authenticatedUser.id) {
+      return res.status(403).json({
+        error: { code: "FORBIDDEN", message: "You do not have permission to view actions taken on this ticket." },
+      });
+    }
+
+    const actions = await prisma.actionTaken.findMany({
+      where: { ticketId },
+      orderBy: { actionDateTime: "asc" },
+      include: {
+        performedBy: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(200).json({ data: actions });
+  } catch (error) {
+    console.error("Requester fetch actions taken error:", error);
+    return res.status(500).json({
+      error: { code: "SERVER_ERROR", message: "Failed to fetch actions taken." },
     });
   }
 });
