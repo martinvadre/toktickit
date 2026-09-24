@@ -97,23 +97,30 @@ toktickit/
 │   │   └── index.ts             # HTTP server entrypoint
 │   ├── uploads/                 # Local storage directory for uploaded attachments
 │   └── tests/                   # Unit & API integration tests (Vitest + Supertest - 72 tests)
-├── e2e/                         # Playwright End-to-End test suites (7 tests)
+├── e2e/                         # Playwright End-to-End test suites
 │   ├── global-setup.ts          # Automatic database seed before E2E runs
-│   └── lab-03/
-│       ├── authentication.spec.ts     # E2E-01: Login, lockout, first-login password change, RBAC nav
-│       ├── staff-ticket-flow.spec.ts  # E2E-02: Ticket creation, staff queue triage, operations, privacy
-│       └── user-administration.spec.ts# E2E-03: Admin user CRUD, safety guardrails, password reset
+│   ├── lab-03/                  # Lab 3 E2E test suites (auth, staff-flow, user-admin)
+│   └── lab-04/                  # Lab 4 E2E test suites
+│       ├── actions-taken-flow.spec.ts  # E2E-01: Actions Taken lifecycle & Requester read-only
+│       ├── ticket-resolution.spec.ts   # E2E-02: Advisory resolution & Staff resolution gate
+│       ├── dashboards.spec.ts          # E2E-03: Role dashboards & drill-down navigation
+│       └── responsive-evidence.spec.ts # Visual screenshot capture (Desktop, Tablet, Mobile)
 ├── artifacts/                   # Evidence artifacts
-│   └── lab-03/screenshots/      # 16 visual screenshots across desktop and mobile
+│   ├── lab-03/screenshots/      # Lab 3 screenshots
+│   └── lab-04/screenshots/      # Lab 4 screenshots across desktop, tablet, and mobile
+│       ├── staff-dashboard/     # Staff dashboard viewports
+│       ├── requester-dashboard/ # Requester dashboard viewports
+│       └── actions-taken/       # Actions Taken UI evidence
 ├── docs/                        # Engineering specifications & evidence
 │   ├── lab-01/                  # Lab 1 sprint records
 │   ├── lab-02/                  # Lab 2 sprint records
-│   └── lab-03/                  # Lab 3 sprint records
-│       ├── specification.md     # Sprint Engineering Specification
+│   ├── lab-03/                  # Lab 3 sprint records
+│   └── lab-04/                  # Lab 4 sprint records
+│       ├── specification.md     # Sprint 4 Engineering Specification
 │       ├── api-spec.md          # REST API Contract
 │       ├── ui-spec.md           # Zen Green UI Design Specification
-│       ├── tests.md             # Test Plan & Traceability Matrix (119/119 passing)
-│       ├── reviewer.md          # Peer Review Log
+│       ├── tests.md             # Test Plan & Traceability Matrix (151/151 passing)
+│       ├── reviewer.md          # Peer Review Log (PRs #48 - #54)
 │       └── ai-use.md            # AI Prompt & Transparency Log
 ├── playwright.config.ts         # Playwright test runner configuration
 ├── package.json                 # Monorepo root scripts (test, test:server, test:client, test:e2e)
@@ -177,25 +184,25 @@ npm --prefix client run dev
 
 ## Running Automated Tests
 
-A unified test suite covering **119 automated tests** across all testing layers:
+A unified test suite covering **151 automated tests** across all testing layers:
 
 ### Run Entire Test Suite (Server + Client + Playwright E2E)
 ```bash
 npm test
 ```
-*Executes all 72 server tests, 40 client tests, and 7 Playwright E2E tests.*
+*Executes all 92 server tests, 53 client tests, and 6 Playwright E2E tests.*
 
 ### Run Specific Test Suites
 ```bash
 # Server Integration & Unit Tests (Vitest + Supertest)
 npm run test:server
-# Result: 17 test files, 72 tests passed (100%)
+# Result: 21 test files, 92 tests passed (100%)
 
 # Client Component & RTL Tests (Vitest + Testing Library)
 npm run test:client
-# Result: 11 test files, 40 tests passed (100%)
+# Result: 15 test files, 53 tests passed (100%)
 
 # End-to-End Tests (Playwright Chromium)
 npm run test:e2e
-# Result: 3 test files, 7 tests passed (100%)
+# Result: 4 test files, 6 tests passed (100%)
 ```
