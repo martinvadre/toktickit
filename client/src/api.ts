@@ -601,16 +601,20 @@ export async function fetchStaffTicketDetail(ticketId: number): Promise<StaffTic
 export async function updateStaffTicketStatus(
   ticketId: number,
   status: string,
-  resolutionSummary?: string
+  resolutionSummary?: string,
+  expectedUpdatedAt?: string
 ): Promise<StaffTicket> {
   const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ status, resolutionSummary }),
+    body: JSON.stringify({ status, resolutionSummary, expectedUpdatedAt }),
   });
   const result = await response.json();
   if (!response.ok) {
-    throw new Error(result.error?.message || "Failed to update ticket status");
+    const error: any = new Error(result.error?.message || "Failed to update ticket status");
+    error.status = response.status;
+    error.code = result.error?.code;
+    throw error;
   }
   return result.data;
 }
