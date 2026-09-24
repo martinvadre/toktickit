@@ -353,7 +353,7 @@ router.patch("/tickets/:id/status", async (req: AuthenticatedRequest, res: Respo
       });
     }
 
-    const { status, resolutionSummary } = req.body;
+    const { status, resolutionSummary, expectedUpdatedAt } = req.body;
     if (!status || typeof status !== "string") {
       return res.status(400).json({
         error: { code: "VALIDATION_ERROR", message: "Status is required." },
@@ -385,6 +385,21 @@ router.patch("/tickets/:id/status", async (req: AuthenticatedRequest, res: Respo
           message: `Cannot transition status from ${ticket.currentStatus} to ${targetStatus}.`,
         },
       });
+    }
+
+    // Stale update detection / Concurrency check (BR-09 / AC-10)
+    if (expectedUpdatedAt) {
+      const expectedTime = new Date(expectedUpdatedAt).getTime();
+      const actualTime = new Date(ticket.updatedAt).getTime();
+      if (isNaN(expectedTime) || expectedTime !== actualTime) {
+        return res.status(409).json({
+          error: {
+            code: "STALE_UPDATE_CONFLICT",
+            message: "This ticket has been modified by another user. Please refresh and review the latest changes before proceeding.",
+            currentUpdatedAt: ticket.updatedAt.toISOString(),
+          },
+        });
+      }
     }
 
     // Resolution summary requirement for RESOLVED or CLOSED (BR-09)
@@ -432,6 +447,7 @@ router.patch("/tickets/:id/status", async (req: AuthenticatedRequest, res: Respo
         resolutionSummary: updated.resolutionSummary,
         resolvedAt: updated.resolvedAt,
         closedAt: updated.closedAt,
+        updatedAt: updated.updatedAt,
         assignedStaff: updated.assignedStaff,
       },
     });
