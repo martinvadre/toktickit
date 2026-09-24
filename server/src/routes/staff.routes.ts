@@ -930,4 +930,149 @@ router.patch("/tickets/:id/actions-taken/:actionId", async (req: AuthenticatedRe
   }
 });
 
+/**
+ * Helper to fetch staff dashboard metrics and ticket lists.
+ */
+export async function getStaffDashboardData(authUserId: number) {
+  const activeStatuses = [
+    TicketStatus.NEW,
+    TicketStatus.OPEN,
+    TicketStatus.ASSIGNED,
+    TicketStatus.IN_PROGRESS,
+    TicketStatus.WAITING_FOR_REQUESTER,
+    TicketStatus.PENDING_REQUESTER,
+    TicketStatus.REOPENED,
+  ];
+
+  const [
+    unassignedCount,
+    myAssignedCount,
+    newCount,
+    openCount,
+    inProgressCount,
+    waitingCount,
+    resolvedCount,
+    highOrUrgentCount,
+    totalActiveCount,
+    urgentTickets,
+    recentTickets,
+  ] = await Promise.all([
+    prisma.ticket.count({
+      where: { assignedStaffId: null, currentStatus: { in: activeStatuses } },
+    }),
+    prisma.ticket.count({
+      where: { assignedStaffId: authUserId, currentStatus: { in: activeStatuses } },
+    }),
+    prisma.ticket.count({ where: { currentStatus: TicketStatus.NEW } }),
+    prisma.ticket.count({ where: { currentStatus: TicketStatus.OPEN } }),
+    prisma.ticket.count({ where: { currentStatus: TicketStatus.IN_PROGRESS } }),
+    prisma.ticket.count({
+      where: {
+        currentStatus: { in: [TicketStatus.WAITING_FOR_REQUESTER, TicketStatus.PENDING_REQUESTER] },
+      },
+    }),
+    prisma.ticket.count({ where: { currentStatus: TicketStatus.RESOLVED } }),
+    prisma.ticket.count({
+      where: {
+        currentStatus: { in: activeStatuses },
+        OR: [
+          { itPriority: { in: [Priority.HIGH, Priority.URGENT] } },
+          { itPriority: null, requestedPriority: { in: [Priority.HIGH, Priority.URGENT] } },
+        ],
+      },
+    }),
+    prisma.ticket.count({
+      where: { currentStatus: { in: activeStatuses } },
+    }),
+    prisma.ticket.findMany({
+      where: {
+        currentStatus: { in: activeStatuses },
+        OR: [
+          { itPriority: { in: [Priority.HIGH, Priority.URGENT] } },
+          { itPriority: null, requestedPriority: { in: [Priority.HIGH, Priority.URGENT] } },
+        ],
+      },
+      orderBy: { createdAt: "asc" },
+      take: 5,
+      include: {
+        assignedStaff: { select: { id: true, name: true } },
+        requester: { select: { id: true, name: true } },
+        _count: { select: { actionsTaken: true } },
+      },
+    }),
+    prisma.ticket.findMany({
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      include: {
+        assignedStaff: { select: { id: true, name: true } },
+        requester: { select: { id: true, name: true } },
+        _count: { select: { actionsTaken: true } },
+      },
+    }),
+  ]);
+
+  const formattedUrgent = urgentTickets.map((t) => ({
+    id: t.id,
+    ticketNumber: t.ticketNumber,
+    summary: t.summary,
+    currentStatus: t.currentStatus,
+    requestedPriority: t.requestedPriority,
+    itPriority: t.itPriority || t.requestedPriority,
+    assignedStaff: t.assignedStaff,
+    requester: t.requester,
+    createdAt: t.createdAt,
+    updatedAt: t.updatedAt,
+    actionCount: t._count.actionsTaken,
+  }));
+
+  const formattedRecent = recentTickets.map((t) => ({
+    id: t.id,
+    ticketNumber: t.ticketNumber,
+    summary: t.summary,
+    currentStatus: t.currentStatus,
+    requestedPriority: t.requestedPriority,
+    itPriority: t.itPriority || t.requestedPriority,
+    assignedStaff: t.assignedStaff,
+    requester: t.requester,
+    createdAt: t.createdAt,
+    updatedAt: t.updatedAt,
+    actionCount: t._count.actionsTaken,
+  }));
+
+  return {
+    metrics: {
+      unassignedTickets: unassignedCount,
+      myAssignedTickets: myAssignedCount,
+      newTickets: newCount,
+      openTickets: openCount,
+      inProgressTickets: inProgressCount,
+      waitingForRequesterTickets: waitingCount,
+      resolvedTickets: resolvedCount,
+      highOrUrgentTickets: highOrUrgentCount,
+      totalActiveTickets: totalActiveCount,
+    },
+    urgentTickets: formattedUrgent,
+    recentTickets: formattedRecent,
+  };
+}
+
+/**
+ * GET /api/staff/dashboard
+ * Retrieve operational queue metrics, urgent items, and breakdown for IT Staff.
+ */
+router.get("/dashboard", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const data = await getStaffDashboardData(req.user!.id);
+    return res.status(200).json({ data });
+  } catch (error) {
+    console.error("Staff dashboard error:", error);
+    return res.status(500).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to retrieve staff dashboard metrics.",
+      },
+    });
+  }
+});
+
 export default router;

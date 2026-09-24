@@ -864,6 +864,119 @@ export async function updateActionTaken(
   return result.data;
 }
 
+export interface RequesterDashboardMetrics {
+  openTickets: number;
+  inProgressTickets: number;
+  waitingForRequesterTickets: number;
+  resolvedTickets: number;
+  closedTickets: number;
+  totalSubmitted: number;
+}
+
+export interface RequesterRecentTicket {
+  id: number;
+  ticketNumber: string;
+  summary: string;
+  currentStatus: string;
+  requestedPriority: string;
+  createdAt: string;
+  updatedAt: string;
+  category: { id: number; name: string };
+  actionCount: number;
+}
+
+export interface RequesterQuickAction {
+  id: string;
+  label: string;
+  action: string;
+}
+
+export interface RequesterDashboardData {
+  metrics: RequesterDashboardMetrics;
+  recentTickets: RequesterRecentTicket[];
+  quickActions: RequesterQuickAction[];
+}
+
+export interface StaffDashboardMetrics {
+  unassignedTickets: number;
+  myAssignedTickets: number;
+  newTickets: number;
+  openTickets: number;
+  inProgressTickets: number;
+  waitingForRequesterTickets: number;
+  resolvedTickets: number;
+  highOrUrgentTickets: number;
+  totalActiveTickets: number;
+}
+
+export interface StaffDashboardTicket {
+  id: number;
+  ticketNumber: string;
+  summary: string;
+  currentStatus: string;
+  requestedPriority: string;
+  itPriority: string;
+  assignedStaff: { id: number; name: string } | null;
+  requester: { id: number; name: string } | null;
+  createdAt: string;
+  updatedAt: string;
+  actionCount?: number;
+}
+
+export interface StaffDashboardData {
+  metrics: StaffDashboardMetrics;
+  urgentTickets: StaffDashboardTicket[];
+  recentTickets: StaffDashboardTicket[];
+}
+
+export interface AdminUserSummary {
+  totalUsers: number;
+  activeStaff: number;
+  activeAdmins: number;
+  activeRequesters: number;
+  inactiveUsers: number;
+}
+
+export interface AdminDashboardData {
+  staffMetrics: StaffDashboardMetrics;
+  urgentTickets: StaffDashboardTicket[];
+  recentTickets: StaffDashboardTicket[];
+  userSummary: AdminUserSummary;
+}
+
+export async function fetchRequesterDashboard(): Promise<RequesterDashboardData> {
+  const response = await fetch(`${API_URL}/api/requester/dashboard`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch requester dashboard data");
+  }
+  return result.data;
+}
+
+export async function fetchStaffDashboard(): Promise<StaffDashboardData> {
+  const response = await fetch(`${API_URL}/api/staff/dashboard`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch staff dashboard data");
+  }
+  return result.data;
+}
+
+export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
+  const response = await fetch(`${API_URL}/api/admin/dashboard`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch admin dashboard data");
+  }
+  return result.data;
+}
+
 
 
 
