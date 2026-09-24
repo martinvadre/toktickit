@@ -160,7 +160,7 @@ export const MyTickets: React.FC<MyTicketsProps> = ({
   };
 
   return (
-    <div className="container py-4">
+    <div className="container py-4" data-testid="my-tickets-container">
       {/* Header Bar */}
       <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 gap-2">
         <div>
