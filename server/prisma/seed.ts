@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role, Priority, TicketStatus, ActionStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -45,7 +45,7 @@ async function main() {
   }
   console.log(`Successfully seeded ${relatedSystems.length} related systems.`);
 
-  // 3. Seed Users (Sprint 3: Requesters, IT Staff, Administrators, and first-login temp user)
+  // 3. Seed Users (Requesters, IT Staff, Administrators, and first-login temp user)
   const users = [
     // Requesters (>= 4 active, 1 inactive)
     {
@@ -176,7 +176,6 @@ async function main() {
       },
     });
 
-    // Also keep RequesterUser synchronized for Lab 2 development requester fallback
     if (user.role === Role.REQUESTER) {
       await prisma.requesterUser.upsert({
         where: { id: user.id },
@@ -197,10 +196,294 @@ async function main() {
     }
 
     console.log(
-      `Seeded user: ${result.name} (${result.email}) [Role: ${result.role}, active: ${result.isActive}, mustChangePassword: ${result.mustChangePassword}]`
+      `Seeded user: ${result.name} (${result.email}) [Role: ${result.role}, active: ${result.isActive}]`
     );
   }
   console.log(`Successfully seeded ${users.length} users.`);
+
+  // 4. Seed Realistic Tickets covering all statuses and multiple Actions Taken
+  const seedTickets = [
+    {
+      id: 1,
+      ticketNumber: "TCK-20260901-0001",
+      requesterId: 1,
+      assignedStaffId: 6,
+      categoryId: 2,
+      relatedSystemId: 7,
+      summary: "Corporate laptop battery overheating and draining rapidly",
+      description: "Battery drains from 100% to 10% in under 30 minutes while running standard office apps.",
+      requestedPriority: Priority.HIGH,
+      itPriority: Priority.HIGH,
+      currentStatus: TicketStatus.IN_PROGRESS,
+      resolutionSummary: null,
+      requesterIndicatedResolved: false,
+      actions: [
+        {
+          id: 1,
+          actionDateTime: new Date("2026-09-02T10:00:00Z"),
+          actionDescription: "Ran hardware diagnostic tests on battery cells.",
+          result: "Cell 3 reported high internal impedance (failing).",
+          performedById: 6, // Supachai
+          status: ActionStatus.COMPLETED,
+          followUpRequired: true,
+          followUpNote: "Ordered replacement battery pack model BTY-X1.",
+          attachmentNotes: "diag_battery_01.log",
+        },
+        {
+          id: 2,
+          actionDateTime: new Date("2026-09-04T14:30:00Z"),
+          actionDescription: "Received replacement battery and swapped into chassis.",
+          result: "Chassis reassembled and power delivery verified normal.",
+          performedById: 7, // Manee (BR-02: different staff member than primary owner)
+          status: ActionStatus.COMPLETED,
+          followUpRequired: true,
+          followUpNote: "Conduct full charge-discharge cycle test before returning to user.",
+          attachmentNotes: null,
+        },
+        {
+          id: 3,
+          actionDateTime: new Date("2026-09-05T09:00:00Z"),
+          actionDescription: "Monitored 4-hour stress test and thermals.",
+          result: "Battery operated within normal thermal threshold; runtime > 6 hours.",
+          performedById: 8, // Chayanon (BR-02: third staff member)
+          status: ActionStatus.COMPLETED,
+          followUpRequired: false,
+          followUpNote: null,
+          attachmentNotes: "thermal_chart.png",
+        },
+      ],
+    },
+    {
+      id: 2,
+      ticketNumber: "TCK-20260902-0002",
+      requesterId: 1,
+      assignedStaffId: null, // Unassigned!
+      categoryId: 4,
+      relatedSystemId: 3,
+      summary: "Cannot connect to campus VPN from off-campus network",
+      description: "Error 809: The network connection between your computer and the VPN server could not be established.",
+      requestedPriority: Priority.URGENT,
+      itPriority: Priority.URGENT,
+      currentStatus: TicketStatus.NEW,
+      resolutionSummary: null,
+      requesterIndicatedResolved: false,
+      actions: [], // 0 actions taken
+    },
+    {
+      id: 3,
+      ticketNumber: "TCK-20260905-0003",
+      requesterId: 1,
+      assignedStaffId: 7,
+      categoryId: 1,
+      relatedSystemId: 1,
+      summary: "Mailbox quota exceeded warning preventing sent messages",
+      description: "Unable to send outgoing emails due to mailbox size limit warning.",
+      requestedPriority: Priority.MEDIUM,
+      itPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.WAITING_FOR_REQUESTER,
+      resolutionSummary: null,
+      requesterIndicatedResolved: false,
+      actions: [
+        {
+          id: 4,
+          actionDateTime: new Date("2026-09-06T11:00:00Z"),
+          actionDescription: "Archived mailbox items older than 2 years to secondary cold storage.",
+          result: "Freed up 8.5 GB of quota.",
+          performedById: 7,
+          status: ActionStatus.COMPLETED,
+          followUpRequired: true,
+          followUpNote: "Waiting for user to verify that Outlook displays archive folder correctly.",
+          attachmentNotes: null,
+        },
+      ],
+    },
+    {
+      id: 4,
+      ticketNumber: "TCK-20260908-0004",
+      requesterId: 1,
+      assignedStaffId: 6,
+      categoryId: 3,
+      relatedSystemId: 4,
+      summary: "Gradebook calculation formula discrepancy in Section 2",
+      description: "Weighted averages for homework assignments showing negative values for some students.",
+      requestedPriority: Priority.HIGH,
+      itPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.RESOLVED,
+      resolutionSummary: "Identified inverted weighting coefficient in gradebook configuration matrix and corrected to 0.15.",
+      requesterIndicatedResolved: true,
+      resolvedAt: new Date("2026-09-10T16:00:00Z"),
+      actions: [
+        {
+          id: 5,
+          actionDateTime: new Date("2026-09-09T13:00:00Z"),
+          actionDescription: "Inspected LEB2 formula definition and calculation logs.",
+          result: "Found syntax error in weighted sum script.",
+          performedById: 6,
+          status: ActionStatus.COMPLETED,
+          followUpRequired: false,
+          followUpNote: null,
+          attachmentNotes: "formula_diff.txt",
+        },
+        {
+          id: 6,
+          actionDateTime: new Date("2026-09-10T15:30:00Z"),
+          actionDescription: "Applied patch to grade calculation engine and recomputed class roster grades.",
+          result: "All grades now calculate accurately.",
+          performedById: 6,
+          status: ActionStatus.COMPLETED,
+          followUpRequired: false,
+          followUpNote: null,
+          attachmentNotes: "grade_verification.csv",
+        },
+      ],
+    },
+    {
+      id: 5,
+      ticketNumber: "TCK-20260910-0005",
+      requesterId: 1,
+      assignedStaffId: 6,
+      categoryId: 2,
+      relatedSystemId: 6,
+      summary: "Department network printer tray 2 jam sensor false alarm",
+      description: "Printer continually prompts Paper Jam in Tray 2 even after clearing paper.",
+      requestedPriority: Priority.LOW,
+      itPriority: Priority.LOW,
+      currentStatus: TicketStatus.CLOSED,
+      resolutionSummary: "Cleaned optical sensor in paper tray 2 assembly and recalibrated sensor threshold.",
+      requesterIndicatedResolved: true,
+      resolvedAt: new Date("2026-09-11T11:00:00Z"),
+      closedAt: new Date("2026-09-12T09:00:00Z"),
+      actions: [
+        {
+          id: 7,
+          actionDateTime: new Date("2026-09-11T10:00:00Z"),
+          actionDescription: "Cleaned optical sensor in paper tray 2 assembly.",
+          result: "Sensor calibrated and zero false paper jams during 50-sheet test print.",
+          performedById: 6,
+          status: ActionStatus.COMPLETED,
+          followUpRequired: false,
+          followUpNote: null,
+          attachmentNotes: null,
+        },
+      ],
+    },
+    {
+      id: 6,
+      ticketNumber: "TCK-20260912-0006",
+      requesterId: 2,
+      assignedStaffId: 8,
+      categoryId: 4,
+      relatedSystemId: 2,
+      summary: "Intermittent Wi-Fi drops in Building 3 lecture hall",
+      description: "Students frequently lose connection during afternoon seminars.",
+      requestedPriority: Priority.MEDIUM,
+      itPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.OPEN,
+      resolutionSummary: null,
+      requesterIndicatedResolved: false,
+      actions: [
+        {
+          id: 8,
+          actionDateTime: new Date("2026-09-13T10:00:00Z"),
+          actionDescription: "Conducted RF signal analysis and channel saturation scan.",
+          result: "Detected co-channel interference on 2.4GHz channels 1 and 6.",
+          performedById: 8,
+          status: ActionStatus.IN_PROGRESS,
+          followUpRequired: true,
+          followUpNote: "Plan access point channel reassignment and power tuning.",
+          attachmentNotes: "wifi_survey_bldg3.png",
+        },
+      ],
+    },
+    {
+      id: 7,
+      ticketNumber: "TCK-20260915-0007",
+      requesterId: 3,
+      assignedStaffId: null, // Unassigned!
+      categoryId: 1,
+      relatedSystemId: 5,
+      summary: "Faculty account permissions missing for semester 1/2026 courses",
+      description: "Cannot view assigned lecture courses in grade submission portal dropdown.",
+      requestedPriority: Priority.HIGH,
+      itPriority: null,
+      currentStatus: TicketStatus.NEW,
+      resolutionSummary: null,
+      requesterIndicatedResolved: false,
+      actions: [], // 0 actions
+    },
+    {
+      id: 8,
+      ticketNumber: "TCK-20260916-0008",
+      requesterId: 4,
+      assignedStaffId: 6,
+      categoryId: 3,
+      relatedSystemId: 7,
+      summary: "CAD modeling software crashes immediately upon launch",
+      description: "Issue recurred after latest graphics driver update.",
+      requestedPriority: Priority.MEDIUM,
+      itPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.REOPENED,
+      resolutionSummary: null,
+      requesterIndicatedResolved: false,
+      actions: [
+        {
+          id: 9,
+          actionDateTime: new Date("2026-09-16T15:00:00Z"),
+          actionDescription: "Examined crash dumps in Event Viewer.",
+          result: "Exception in nvoglv64.dll (OpenGL driver crash).",
+          performedById: 6,
+          status: ActionStatus.PENDING,
+          followUpRequired: true,
+          followUpNote: "Roll back NVIDIA driver to certified enterprise release.",
+          attachmentNotes: "crash_dump.dmp",
+        },
+      ],
+    },
+  ];
+
+  for (const t of seedTickets) {
+    const { actions, ...ticketData } = t;
+    const ticket = await prisma.ticket.upsert({
+      where: { ticketNumber: ticketData.ticketNumber },
+      update: ticketData,
+      create: ticketData,
+    });
+
+    for (const a of actions) {
+      await prisma.actionTaken.upsert({
+        where: { id: a.id },
+        update: {
+          ticketId: ticket.id,
+          actionDateTime: a.actionDateTime,
+          actionDescription: a.actionDescription,
+          result: a.result,
+          performedById: a.performedById,
+          status: a.status,
+          followUpRequired: a.followUpRequired,
+          followUpNote: a.followUpNote,
+          attachmentNotes: a.attachmentNotes,
+        },
+        create: {
+          id: a.id,
+          ticketId: ticket.id,
+          actionDateTime: a.actionDateTime,
+          actionDescription: a.actionDescription,
+          result: a.result,
+          performedById: a.performedById,
+          status: a.status,
+          followUpRequired: a.followUpRequired,
+          followUpNote: a.followUpNote,
+          attachmentNotes: a.attachmentNotes,
+        },
+      });
+    }
+
+    console.log(
+      `Seeded ticket: ${ticket.ticketNumber} [Status: ${ticket.currentStatus}, Priority: ${ticket.requestedPriority}, Actions: ${actions.length}]`
+    );
+  }
+
+  console.log(`Successfully seeded ${seedTickets.length} tickets with Actions Taken.`);
 }
 
 main()

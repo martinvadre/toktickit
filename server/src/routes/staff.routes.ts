@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { Role, Priority, TicketStatus } from "@prisma/client";
+import { Role, Priority, TicketStatus, ActionStatus } from "@prisma/client";
 import prisma from "../prisma";
 import { AuthenticatedRequest, requireRole } from "../middleware/auth";
 
@@ -293,6 +293,12 @@ router.get("/tickets/:id", async (req: AuthenticatedRequest, res: Response) => {
             author: { select: { id: true, name: true, email: true, role: true } },
           },
         },
+        actionsTaken: {
+          orderBy: { actionDateTime: "asc" },
+          include: {
+            performedBy: { select: { id: true, name: true, email: true, role: true } },
+          },
+        },
       },
     });
 
@@ -323,6 +329,7 @@ router.get("/tickets/:id", async (req: AuthenticatedRequest, res: Response) => {
         relatedSystem: ticket.relatedSystem,
         attachments: ticket.attachments,
         comments: ticket.comments,
+        actionsTaken: ticket.actionsTaken,
       },
     });
   } catch (error) {
@@ -607,6 +614,302 @@ router.post("/tickets/:id/comments", async (req: AuthenticatedRequest, res: Resp
     console.error("Staff comment creation error:", error);
     return res.status(500).json({
       error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to add comment." },
+    });
+  }
+});
+
+/**
+ * GET /api/staff/tickets/:id/actions-taken
+ * Retrieve all Actions Taken for a ticket.
+ */
+router.get("/tickets/:id/actions-taken", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const actions = await prisma.actionTaken.findMany({
+      where: { ticketId },
+      orderBy: { actionDateTime: "asc" },
+      include: {
+        performedBy: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(200).json({ data: actions });
+  } catch (error) {
+    console.error("Fetch actions taken error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to retrieve actions taken." },
+    });
+  }
+});
+
+/**
+ * POST /api/staff/tickets/:id/actions-taken
+ * Record a new Action Taken under a Ticket (BR-01, BR-02, BR-03, BR-04).
+ */
+router.post("/tickets/:id/actions-taken", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    if (isNaN(ticketId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket ID." },
+      });
+    }
+
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found." },
+      });
+    }
+
+    const {
+      actionDateTime,
+      actionDescription,
+      result,
+      performedById,
+      status = "COMPLETED",
+      followUpRequired = false,
+      followUpNote,
+      attachmentNotes,
+    } = req.body;
+
+    // Validate actionDescription (min 5 chars)
+    if (!actionDescription || typeof actionDescription !== "string" || actionDescription.trim().length < 5) {
+      return res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Action description must be at least 5 characters.",
+          field: "actionDescription",
+        },
+      });
+    }
+
+    // Validate result (min 3 chars)
+    if (!result || typeof result !== "string" || result.trim().length < 3) {
+      return res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Result must be at least 3 characters.",
+          field: "result",
+        },
+      });
+    }
+
+    // Validate follow-up required note (BR-04 / AC-02)
+    const isFollowUp = Boolean(followUpRequired);
+    if (isFollowUp) {
+      if (!followUpNote || typeof followUpNote !== "string" || followUpNote.trim().length < 5) {
+        return res.status(400).json({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Follow-up note of at least 5 characters is required when follow-up is needed.",
+            field: "followUpNote",
+          },
+        });
+      }
+    }
+
+    // Validate performer / assignee (BR-03 / AC-03)
+    let finalPerformerId = req.user!.id;
+    if (performedById !== undefined && performedById !== null) {
+      const parsedId = Number(performedById);
+      if (isNaN(parsedId)) {
+        return res.status(400).json({
+          error: { code: "INVALID_ASSIGNEE", message: "Invalid performer ID format." },
+        });
+      }
+
+      const performerUser = await prisma.user.findUnique({ where: { id: parsedId } });
+      if (!performerUser || !performerUser.isActive || performerUser.role === Role.REQUESTER) {
+        return res.status(400).json({
+          error: {
+            code: "INVALID_ASSIGNEE",
+            message: "Can only assign Action Taken to an active Staff or Administrator user.",
+          },
+        });
+      }
+      finalPerformerId = parsedId;
+    }
+
+    // Validate status enum
+    let actionStatus = ActionStatus.COMPLETED;
+    if (status) {
+      const upperStatus = String(status).trim().toUpperCase() as ActionStatus;
+      if (!Object.values(ActionStatus).includes(upperStatus)) {
+        return res.status(400).json({
+          error: { code: "VALIDATION_ERROR", message: `Invalid action status: ${status}` },
+        });
+      }
+      actionStatus = upperStatus;
+    }
+
+    const parsedDateTime = actionDateTime && !isNaN(new Date(actionDateTime).getTime())
+      ? new Date(actionDateTime)
+      : new Date();
+
+    const createdAction = await prisma.actionTaken.create({
+      data: {
+        ticketId,
+        actionDateTime: parsedDateTime,
+        actionDescription: actionDescription.trim(),
+        result: result.trim(),
+        performedById: finalPerformerId,
+        status: actionStatus,
+        followUpRequired: isFollowUp,
+        followUpNote: isFollowUp ? followUpNote.trim() : null,
+        attachmentNotes: attachmentNotes && typeof attachmentNotes === "string" ? attachmentNotes.trim() : null,
+      },
+      include: {
+        performedBy: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(201).json({ data: createdAction });
+  } catch (error) {
+    console.error("Create action taken error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to record Action Taken." },
+    });
+  }
+});
+
+/**
+ * PATCH /api/staff/tickets/:id/actions-taken/:actionId
+ * Update an existing Action Taken (AC-05).
+ */
+router.patch("/tickets/:id/actions-taken/:actionId", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const ticketId = parseInt(req.params.id, 10);
+    const actionId = parseInt(req.params.actionId, 10);
+
+    if (isNaN(ticketId) || isNaN(actionId)) {
+      return res.status(400).json({
+        error: { code: "INVALID_ID", message: "Invalid ticket or action ID." },
+      });
+    }
+
+    const existingAction = await prisma.actionTaken.findFirst({
+      where: { id: actionId, ticketId },
+    });
+
+    if (!existingAction) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Action Taken not found for this ticket." },
+      });
+    }
+
+    const {
+      actionDateTime,
+      actionDescription,
+      result,
+      performedById,
+      status,
+      followUpRequired,
+      followUpNote,
+      attachmentNotes,
+    } = req.body;
+
+    const updateData: any = {};
+
+    if (actionDescription !== undefined) {
+      if (typeof actionDescription !== "string" || actionDescription.trim().length < 5) {
+        return res.status(400).json({
+          error: { code: "VALIDATION_ERROR", message: "Action description must be at least 5 characters." },
+        });
+      }
+      updateData.actionDescription = actionDescription.trim();
+    }
+
+    if (result !== undefined) {
+      if (typeof result !== "string" || result.trim().length < 3) {
+        return res.status(400).json({
+          error: { code: "VALIDATION_ERROR", message: "Result must be at least 3 characters." },
+        });
+      }
+      updateData.result = result.trim();
+    }
+
+    const isFollowUp = followUpRequired !== undefined ? Boolean(followUpRequired) : existingAction.followUpRequired;
+    updateData.followUpRequired = isFollowUp;
+
+    if (isFollowUp) {
+      const effectiveNote = followUpNote !== undefined ? followUpNote : existingAction.followUpNote;
+      if (!effectiveNote || typeof effectiveNote !== "string" || effectiveNote.trim().length < 5) {
+        return res.status(400).json({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Follow-up note of at least 5 characters is required when follow-up is needed.",
+          },
+        });
+      }
+      updateData.followUpNote = effectiveNote.trim();
+    } else {
+      updateData.followUpNote = null;
+    }
+
+    if (performedById !== undefined && performedById !== null) {
+      const parsedId = Number(performedById);
+      if (isNaN(parsedId)) {
+        return res.status(400).json({
+          error: { code: "INVALID_ASSIGNEE", message: "Invalid performer ID format." },
+        });
+      }
+      const performerUser = await prisma.user.findUnique({ where: { id: parsedId } });
+      if (!performerUser || !performerUser.isActive || performerUser.role === Role.REQUESTER) {
+        return res.status(400).json({
+          error: {
+            code: "INVALID_ASSIGNEE",
+            message: "Can only assign Action Taken to an active Staff or Administrator user.",
+          },
+        });
+      }
+      updateData.performedById = parsedId;
+    }
+
+    if (status !== undefined) {
+      const upperStatus = String(status).trim().toUpperCase() as ActionStatus;
+      if (!Object.values(ActionStatus).includes(upperStatus)) {
+        return res.status(400).json({
+          error: { code: "VALIDATION_ERROR", message: `Invalid action status: ${status}` },
+        });
+      }
+      updateData.status = upperStatus;
+    }
+
+    if (actionDateTime && !isNaN(new Date(actionDateTime).getTime())) {
+      updateData.actionDateTime = new Date(actionDateTime);
+    }
+
+    if (attachmentNotes !== undefined) {
+      updateData.attachmentNotes = attachmentNotes && typeof attachmentNotes === "string" ? attachmentNotes.trim() : null;
+    }
+
+    const updated = await prisma.actionTaken.update({
+      where: { id: actionId },
+      data: updateData,
+      include: {
+        performedBy: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+
+    return res.status(200).json({ data: updated });
+  } catch (error) {
+    console.error("Update action taken error:", error);
+    return res.status(500).json({
+      error: { code: "INTERNAL_SERVER_ERROR", message: "Failed to update Action Taken." },
     });
   }
 });
