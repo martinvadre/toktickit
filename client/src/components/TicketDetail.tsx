@@ -10,6 +10,7 @@ import {
   addRequesterComment,
   indicateTicketResolved,
 } from "../api";
+import { ActionsTakenSection } from "./ActionsTakenSection";
 
 interface TicketDetailProps {
   ticketId: number;
@@ -410,6 +411,14 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
             )}
           </div>
         </div>
+
+        {/* Actions Taken Section (Lab 4 / Requester Read-Only View) */}
+        <ActionsTakenSection
+          ticketId={ticket.id}
+          actions={ticket.actionsTaken || []}
+          isStaff={false}
+          onActionSaved={loadTicket}
+        />
 
         {/* Attachments Management Section */}
         <div className="border-top pt-4">

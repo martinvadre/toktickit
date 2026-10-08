@@ -90,6 +90,51 @@ export interface TicketComment {
   };
 }
 
+export type ActionStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+export interface ActionTaken {
+  id: number;
+  ticketId: number;
+  actionDateTime: string;
+  actionDescription: string;
+  result: string;
+  performedById?: number;
+  performedBy: {
+    id: number;
+    name: string;
+    email?: string;
+    role?: string;
+  };
+  status: ActionStatus;
+  followUpRequired: boolean;
+  followUpNote: string | null;
+  attachmentNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateActionTakenInput {
+  actionDateTime?: string;
+  actionDescription: string;
+  result: string;
+  performedById?: number;
+  status?: ActionStatus;
+  followUpRequired?: boolean;
+  followUpNote?: string | null;
+  attachmentNotes?: string | null;
+}
+
+export interface UpdateActionTakenInput {
+  actionDateTime?: string;
+  actionDescription?: string;
+  result?: string;
+  performedById?: number;
+  status?: ActionStatus;
+  followUpRequired?: boolean;
+  followUpNote?: string | null;
+  attachmentNotes?: string | null;
+}
+
 export interface Ticket {
   id: number;
   ticketNumber: string;
@@ -115,6 +160,7 @@ export interface Ticket {
   attachments?: Attachment[];
   attachmentCount?: number;
   comments?: TicketComment[];
+  actionsTaken?: ActionTaken[];
 }
 
 export interface CreateTicketPayload {
@@ -251,9 +297,9 @@ export async function fetchMyTickets(params: GetTicketsParams): Promise<GetTicke
 
 export async function fetchTicketDetail(ticketId: number, requesterId: number): Promise<Ticket> {
   const response = await fetch(`${API_URL}/api/tickets/${ticketId}`, {
-    headers: {
+    headers: getAuthHeaders({
       "x-requester-id": String(requesterId),
-    },
+    }),
   });
 
   const result = await response.json();
@@ -461,6 +507,7 @@ export interface StaffTicket {
   attachmentCount: number;
   comments?: TicketComment[];
   commentCount: number;
+  actionsTaken?: ActionTaken[];
 }
 
 export interface StaffTicketsParams {
@@ -768,6 +815,51 @@ export async function resetAdminUserPassword(
   }
   return result;
 }
+
+export async function fetchTicketActionsTaken(ticketId: number): Promise<ActionTaken[]> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/actions-taken`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to fetch actions taken.");
+  }
+  return result.data || [];
+}
+
+export async function createActionTaken(
+  ticketId: number,
+  data: CreateActionTakenInput
+): Promise<ActionTaken> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/actions-taken`, {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to record Action Taken.");
+  }
+  return result.data;
+}
+
+export async function updateActionTaken(
+  ticketId: number,
+  actionId: number,
+  data: UpdateActionTakenInput
+): Promise<ActionTaken> {
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}/actions-taken/${actionId}`, {
+    method: "PATCH",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Failed to update Action Taken.");
+  }
+  return result.data;
+}
+
 
 
 

@@ -12,6 +12,7 @@ import {
   downloadAttachment,
   Attachment,
 } from "../api";
+import { ActionsTakenSection } from "./ActionsTakenSection";
 
 interface StaffTicketDetailProps {
   ticketId: number;
@@ -420,6 +421,16 @@ export const StaffTicketDetail: React.FC<StaffTicketDetailProps> = ({
               </div>
             )}
           </div>
+
+          {/* Actions Taken Section (Lab 4 / BR-01, BR-02, BR-03, BR-04) */}
+          <ActionsTakenSection
+            ticketId={ticket.id}
+            actions={ticket.actionsTaken || []}
+            isStaff={true}
+            currentUserId={user?.id}
+            staffList={staffList}
+            onActionSaved={loadData}
+          />
 
           {/* Attachments Section */}
           <div className="card shadow-sm border-0 bg-white p-4 mb-4">
