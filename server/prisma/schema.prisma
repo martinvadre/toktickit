@@ -33,6 +33,13 @@ enum TicketStatus {
   CANCELLED
 }
 
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id                 Int       @id @default(autoincrement())
   name               String
@@ -48,6 +55,7 @@ model User {
   submittedTickets   Ticket[]        @relation("SubmittedTickets")
   assignedTickets    Ticket[]        @relation("AssignedTickets")
   comments           TicketComment[]
+  actionsPerformed   ActionTaken[]   @relation("ActionsPerformed")
 
   @@index([email])
   @@index([role])
@@ -104,6 +112,7 @@ model Ticket {
   relatedSystem              RelatedSystem @relation(fields: [relatedSystemId], references: [id])
   attachments                Attachment[]
   comments                   TicketComment[]
+  actionsTaken               ActionTaken[]
 
   @@index([ticketNumber])
   @@index([requesterId])
@@ -144,4 +153,26 @@ model TicketComment {
   @@index([ticketId])
   @@index([authorId])
   @@index([isInternal])
+}
+
+model ActionTaken {
+  id                Int          @id @default(autoincrement())
+  ticketId          Int
+  actionDateTime    DateTime     @default(now())
+  actionDescription String
+  result            String
+  performedById     Int
+  status            ActionStatus @default(COMPLETED)
+  followUpRequired  Boolean      @default(false)
+  followUpNote      String?
+  attachmentNotes   String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  ticket            Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  performedBy       User         @relation("ActionsPerformed", fields: [performedById], references: [id])
+
+  @@index([ticketId])
+  @@index([performedById])
+  @@index([status])
 }
