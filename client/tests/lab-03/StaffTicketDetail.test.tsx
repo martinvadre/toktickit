@@ -168,7 +168,8 @@ describe("UI-11 to UI-14: StaffTicketDetail Component", () => {
       expect(updateStatusSpy).toHaveBeenCalledWith(
         101,
         "RESOLVED",
-        "Reconfigured VPN gateway routes and balanced load."
+        "Reconfigured VPN gateway routes and balanced load.",
+        mockTicketDetail.updatedAt
       );
     });
   });

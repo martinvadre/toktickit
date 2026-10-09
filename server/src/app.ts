@@ -502,6 +502,7 @@ app.patch("/api/tickets/:id/indicate-resolved", async (req, res) => {
       data: {
         id: updated.id,
         ticketNumber: updated.ticketNumber,
+        currentStatus: updated.currentStatus,
         requesterIndicatedResolved: updated.requesterIndicatedResolved,
       },
     });
