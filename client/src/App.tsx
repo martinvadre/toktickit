@@ -10,6 +10,8 @@ import { TicketDetail } from "./components/TicketDetail";
 import { StaffTicketQueue } from "./components/StaffTicketQueue";
 import { StaffTicketDetail } from "./components/StaffTicketDetail";
 import { UserManagement } from "./components/UserManagement";
+import { RequesterDashboard } from "./components/RequesterDashboard";
+import { StaffDashboard } from "./components/StaffDashboard";
 import { checkSystem, Category } from "./api";
 import "./styles/theme.css";
 
@@ -17,8 +19,10 @@ function AppContent() {
   const { user, loading: authLoading } = useAuth();
   const { setRequester, clearRequester } = useRequester();
 
-  const [activeTab, setActiveTab] = useState<string>("my-tickets");
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [myTicketsFilterStatus, setMyTicketsFilterStatus] = useState<string | undefined>(undefined);
+  const [staffQueueFilter, setStaffQueueFilter] = useState<{ status?: string; assignedStaffId?: string; itPriority?: string } | undefined>(undefined);
 
   // Synchronize authenticated user with RequesterContext
   useEffect(() => {
@@ -58,6 +62,8 @@ function AppContent() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setSelectedTicketId(null);
+    setMyTicketsFilterStatus(undefined);
+    setStaffQueueFilter(undefined);
   };
 
   if (authLoading) {
@@ -74,7 +80,7 @@ function AppContent() {
   if (!user) {
     return (
       <div className="bg-light min-vh-100">
-        <Login onSuccess={() => handleTabChange("my-tickets")} />
+        <Login onSuccess={() => handleTabChange("dashboard")} />
 
         <div className="container pb-5">
           <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: "600px" }}>
@@ -133,7 +139,7 @@ function AppContent() {
   // 2. Mandatory First-Login Password Change Screen (BR-02 / AC-02)
   if (user.mustChangePassword) {
     return (
-      <ChangePassword onSuccess={() => handleTabChange("my-tickets")} />
+      <ChangePassword onSuccess={() => handleTabChange("dashboard")} />
     );
   }
 
@@ -142,6 +148,40 @@ function AppContent() {
     <div className="min-vh-100 d-flex flex-column">
       <Header activeTab={activeTab} onSelectTab={handleTabChange} />
       <main className="flex-grow-1">
+        {activeTab === "dashboard" && (
+          user.role === "REQUESTER" ? (
+            <RequesterDashboard
+              onNavigateToTickets={(status) => {
+                setMyTicketsFilterStatus(status);
+                setSelectedTicketId(null);
+                setActiveTab("my-tickets");
+              }}
+              onSelectTicket={(id) => {
+                setSelectedTicketId(id);
+                setActiveTab("my-tickets");
+              }}
+              onCreateTicket={() => handleTabChange("create-ticket")}
+            />
+          ) : (
+            <StaffDashboard
+              onNavigateToQueue={(filterKey, filterVal) => {
+                if (filterKey && filterVal) {
+                  setStaffQueueFilter({ [filterKey]: filterVal });
+                } else {
+                  setStaffQueueFilter(undefined);
+                }
+                setSelectedTicketId(null);
+                setActiveTab("staff-queue");
+              }}
+              onSelectTicket={(id) => {
+                setSelectedTicketId(id);
+                setActiveTab("staff-queue");
+              }}
+              onNavigateToUsers={() => handleTabChange("admin-users")}
+            />
+          )
+        )}
+
         {activeTab === "create-ticket" && (
           <CreateTicket
             onTicketCreated={() => handleTabChange("my-tickets")}
@@ -159,6 +199,7 @@ function AppContent() {
             <MyTickets
               onCreateTicket={() => handleTabChange("create-ticket")}
               onSelectTicket={(id) => setSelectedTicketId(id)}
+              initialStatus={myTicketsFilterStatus}
             />
           )
         )}
@@ -172,6 +213,7 @@ function AppContent() {
           ) : (
             <StaffTicketQueue
               onSelectTicket={(id) => setSelectedTicketId(id)}
+              initialFilter={staffQueueFilter}
             />
           )
         )}

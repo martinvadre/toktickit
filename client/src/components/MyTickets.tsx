@@ -11,18 +11,20 @@ import {
 interface MyTicketsProps {
   onCreateTicket?: () => void;
   onSelectTicket?: (ticketId: number) => void;
+  initialStatus?: string;
 }
 
 export const MyTickets: React.FC<MyTicketsProps> = ({
   onCreateTicket,
   onSelectTicket,
+  initialStatus,
 }) => {
   const { currentRequester } = useRequester();
 
   // Filter & Search states
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatus || "");
   const [selectedPriority, setSelectedPriority] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
