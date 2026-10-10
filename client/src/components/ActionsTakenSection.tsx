@@ -507,6 +507,7 @@ export const ActionsTakenSection: React.FC<ActionsTakenSectionProps> = ({
                       setEditingAction(null);
                     }}
                     disabled={submitting}
+                    data-testid="cancel-action-modal-btn"
                   >
                     Cancel
                   </button>
