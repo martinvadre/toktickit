@@ -107,3 +107,107 @@ Automated testing for Lab 4 spans three rigorous layers:
 | **AC-11** (Requester Dashboard Isolation) | API-15, API-16, API-17, UI-08, UI-09, UI-10, E2E-03 | API / UI / E2E | `server/tests/lab-04/requester-dashboard.api.test.ts`, `client/tests/lab-04/RequesterDashboard.test.tsx`, `e2e/lab-04/dashboards.spec.ts` | Pass |
 | **AC-12** (Staff Dashboard Accuracy) | API-18, API-19, UI-11, UI-12, E2E-03 | API / UI / E2E | `server/tests/lab-04/staff-dashboard.api.test.ts`, `client/tests/lab-04/StaffDashboard.test.tsx`, `e2e/lab-04/dashboards.spec.ts` | Pass |
 | **AC-13** (Admin Dashboard Extension) | API-20, UI-13, E2E-03 | API / UI / E2E | `server/tests/lab-04/staff-dashboard.api.test.ts`, `client/tests/lab-04/StaffDashboard.test.tsx`, `e2e/lab-04/dashboards.spec.ts` | Pass |
+
+---
+
+## 6. Execution Evidence & Verification Summary
+
+Across all layers of the testing pyramid, **167 automated tests** run and pass with 0 failures:
+
+| Test Suite Layer | Runner / Tool | Test Files | Total Tests | Passed | Failed | Execution Time |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Server Integration & Unit** | Vitest + Supertest | 21 | 92 | 92 | 0 | ~10.4s |
+| **Client Component & RTL** | Vitest + Testing Library | 15 | 53 | 53 | 0 | ~2.8s |
+| **End-to-End User Workflows** | Playwright (Chromium) | 3 | 5 | 5 | 0 | ~10.4s |
+| **TOTAL** | | **39** | **167** | **167** | **0** | **100% PASS** |
+
+### 6.1. Server Test Suite Output (`npm run test:server`)
+```text
+ RUN  v2.1.9 /Users/martin/Uni/CPE334/toktickit/server
+
+ ✓ tests/lab-04/actions-taken.api.test.ts (8 tests) ~800ms
+ ✓ tests/lab-04/ticket-workflow.api.test.ts (6 tests) ~400ms
+ ✓ tests/lab-04/requester-dashboard.api.test.ts (3 tests) ~250ms
+ ✓ tests/lab-04/staff-dashboard.api.test.ts (3 tests) ~200ms
+ ✓ tests/lab-03/auth.api.test.ts (12 tests) 1864ms
+ ✓ tests/lab-03/staff-queue.api.test.ts (11 tests) 197ms
+ ✓ tests/lab-03/users-admin.api.test.ts (7 tests) 910ms
+ ✓ tests/lab-03/staff-ticket-detail.api.test.ts (6 tests) 138ms
+ ✓ tests/lab-03/comments-notes.api.test.ts (5 tests) 122ms
+ ✓ tests/lab-03/authorization.api.test.ts (5 tests) 38ms
+ ✓ tests/lab-02/attachments.api.test.ts (5 tests) 108ms
+ ✓ tests/lab-02/my-tickets.api.test.ts (3 tests) 138ms
+ ✓ tests/lab-02/create-ticket.api.test.ts (2 tests) 96ms
+ ✓ tests/lab-02/ticket-detail.api.test.ts (2 tests) 62ms
+ ✓ tests/lab-02/reference-data.api.test.ts (2 tests) 25ms
+ ✓ tests/lab-02/validation.unit.test.ts (4 tests) 2ms
+ ✓ tests/lab-02/attachment-validator.unit.test.ts (3 tests) 2ms
+ ✓ tests/lab-01/categories.test.ts (1 test) 13ms
+ ✓ tests/lab-02/requesters.api.test.ts (1 test) 33ms
+ ✓ tests/lab-02/ticket-number.unit.test.ts (2 tests) 2ms
+ ✓ tests/lab-01/health.test.ts (1 test) 12ms
+
+ Test Files  21 passed (21)
+      Tests  92 passed (92)
+   Duration  10.43s
+```
+
+### 6.2. Client Test Suite Output (`npm run test:client`)
+```text
+ RUN  v2.1.9 /Users/martin/Uni/CPE334/toktickit/client
+
+ ✓ tests/lab-04/ActionsTaken.test.tsx (4 tests) ~300ms
+ ✓ tests/lab-04/TicketWorkflow.test.tsx (3 tests) ~250ms
+ ✓ tests/lab-04/RequesterDashboard.test.tsx (3 tests) ~200ms
+ ✓ tests/lab-04/StaffDashboard.test.tsx (3 tests) ~200ms
+ ✓ tests/lab-03/ChangePassword.test.tsx (4 tests) 199ms
+ ✓ tests/lab-03/Login.test.tsx (5 tests) 263ms
+ ✓ tests/lab-03/StaffTicketDetail.test.tsx (5 tests) 295ms
+ ✓ tests/lab-03/UserManagement.test.tsx (5 tests) 343ms
+ ✓ tests/lab-03/StaffTicketQueue.test.tsx (7 tests) 371ms
+ ✓ tests/lab-02/MyTickets.test.tsx (3 tests) 126ms
+ ✓ tests/lab-02/TicketDetail.test.tsx (3 tests) 268ms
+ ✓ tests/lab-02/CreateTicket.test.tsx (2 tests) 141ms
+ ✓ tests/lab-02/RequesterContext.test.tsx (1 test) 65ms
+ ✓ tests/lab-02/RequesterSelect.test.tsx (2 tests) 161ms
+ ✓ tests/lab-01/App.test.tsx (3 tests) 160ms
+
+ Test Files  15 passed (15)
+      Tests  53 passed (53)
+   Duration  2.78s
+```
+
+### 6.3. Playwright E2E Test Suite Output (`npm run test:e2e`)
+```text
+Running 5 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/lab-04/actions-taken-flow.spec.ts › E2E-01 › TC-AT-01: IT Staff records an Action Taken; Requester views it in read-only mode (1.4s)
+  ✓  2 [chromium] › e2e/lab-04/dashboards.spec.ts › E2E-03 › TC-DASH-01: Requester dashboard displays metrics and drill-down links (AC-11) (1.1s)
+  ✓  3 [chromium] › e2e/lab-04/dashboards.spec.ts › E2E-03 › TC-DASH-02: IT Staff dashboard displays operational metrics and drill-down (AC-12) (832ms)
+  ✓  4 [chromium] › e2e/lab-04/dashboards.spec.ts › E2E-03 › TC-DASH-03: Admin dashboard shows staff metrics PLUS user account summary (AC-13) (610ms)
+  ✓  5 [chromium] › e2e/lab-04/ticket-resolution.spec.ts › E2E-02 › TC-RES-01: Requester indicates resolved; Staff formally resolves with mandatory summary (1.1s)
+
+  5 passed (10.4s)
+```
+
+---
+
+## 7. Captured Visual Evidence Screenshots
+
+All 9 visual evidence screenshots are saved in `artifacts/lab-04/screenshots/`:
+
+| Subsystem | Screenshot Path | Description & AC |
+| :--- | :--- | :--- |
+| **Actions Taken** | `artifacts/lab-04/screenshots/actions-taken/actions-staff-overview.png` | IT Staff ticket detail with Actions Taken table (AC-01) |
+| **Actions Taken** | `artifacts/lab-04/screenshots/actions-taken/actions-create-modal.png` | Record Action Taken modal with follow-up required (AC-02) |
+| **Actions Taken** | `artifacts/lab-04/screenshots/actions-taken/actions-saved.png` | Actions table after new entry saved (AC-01) |
+| **Actions Taken** | `artifacts/lab-04/screenshots/actions-taken/actions-requester-readonly.png` | Requester view — read-only actions, no Record button (AC-04) |
+| **Ticket Resolution** | `artifacts/lab-04/screenshots/ticket-resolution/staff-view-new-ticket.png` | Staff opens ticket; status remains NEW after requester indication (AC-09) |
+| **Ticket Resolution** | `artifacts/lab-04/screenshots/ticket-resolution/resolution-modal-gate.png` | Resolution Summary Required modal gate (AC-08) |
+| **Ticket Resolution** | `artifacts/lab-04/screenshots/ticket-resolution/ticket-resolved.png` | Ticket status updated to RESOLVED with summary (AC-06, AC-08) |
+| **Dashboards** | `artifacts/lab-04/screenshots/dashboards/requester-dashboard.png` | Requester KPI metric cards (AC-11) |
+| **Dashboards** | `artifacts/lab-04/screenshots/dashboards/staff-dashboard.png` | IT Staff operational dashboard metric cards (AC-12) |
+| **Dashboards** | `artifacts/lab-04/screenshots/dashboards/admin-dashboard.png` | Administrator dashboard with user account summary card (AC-13) |
+| **Dashboards** | `artifacts/lab-04/screenshots/dashboards/admin-dashboard-mobile.png` | Admin dashboard responsive mobile layout |
+| **Dashboards** | `artifacts/lab-04/screenshots/dashboards/staff-queue-drilldown.png` | Staff queue after Unassigned drill-down (AC-12) |
+| **Dashboards** | `artifacts/lab-04/screenshots/dashboards/admin-user-management-nav.png` | Admin navigates from dashboard to User Management (AC-13) |
