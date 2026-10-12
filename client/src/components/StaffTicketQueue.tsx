@@ -539,7 +539,12 @@ export const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ onSelectTick
               </thead>
               <tbody>
                 {tickets.map((t) => (
-                  <tr key={t.id}>
+                  <tr
+                    key={t.id}
+                    data-testid={`ticket-row-${t.id}`}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => onSelectTicket && onSelectTicket(t.id)}
+                  >
                     <td>
                       <button
                         type="button"

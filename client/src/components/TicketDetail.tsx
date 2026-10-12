@@ -300,7 +300,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
   const isAttachmentLimitReached = activeCount >= 5;
 
   return (
-    <div className="container py-4">
+    <div className="container py-4" data-testid="ticket-detail-view">
       {/* Navigation Breadcrumb */}
       <div className="d-flex align-items-center justify-content-between mb-4">
         <nav aria-label="breadcrumb">
