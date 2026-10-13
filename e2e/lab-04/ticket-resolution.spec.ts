@@ -44,6 +44,7 @@ test.describe('E2E-02 (AC-06, AC-08, AC-09): Requester Advisory Resolution & Sta
     if (await indicateBtn.isVisible()) {
       await indicateBtn.click();
       await expect(page.locator('[data-testid="indicated-resolved-badge"]')).toBeVisible();
+      await page.screenshot({ path: 'artifacts/lab-04/report/part7_advisory_cue.png' });
     }
 
     // Sign out requester
@@ -83,6 +84,7 @@ test.describe('E2E-02 (AC-06, AC-08, AC-09): Requester Advisory Resolution & Sta
 
     // Mandatory Resolution Summary Modal must appear
     await expect(page.locator('h5:has-text("Resolution Summary Required")')).toBeVisible();
+    await page.screenshot({ path: 'artifacts/lab-04/report/part7_resolution_modal.png' });
 
     const confirmBtn = page.locator('[data-testid="confirm-resolution-btn"]');
     const summaryInput = page.locator('[data-testid="resolution-summary-input"]');
