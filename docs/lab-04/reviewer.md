@@ -15,7 +15,7 @@
 | **[#65](https://github.com/martinvadre/toktickit/pull/65)** | `feature/20-ticket-workflow` | Authoritative Ticket Status transition matrix, mandatory resolution gate, optimistic concurrency conflict detection, and workflow tests | Approved & Merged |
 | **[#70](https://github.com/martinvadre/toktickit/pull/70)** | `feature/21-role-dashboards` | Role-appropriate operational dashboards for Requesters, IT Staff, and Administrators, backend KPI queries, drill-down navigation, and UI tests | Approved & Merged |
 | **[#72](https://github.com/martinvadre/toktickit/pull/72)** | `feature/22-final-hardening` | Playwright E2E suites, visual screenshots across viewports, full 100% regression verification, release documentation, and report generation | Approved & Merged |
-| **Commit `5c0fa6d`** | `lab4-staging` $\rightarrow$ `main` | Final Sprint 4 Production Release integrating all deliverables into `main` | Approved & Merged |
+| **[#73](https://github.com/martinvadre/toktickit/pull/73)** | `lab4-staging` $\rightarrow$ `main` | Final Sprint 4 Production Release integrating all deliverables into `main` | Approved & Merged |
 
 ---
 
@@ -69,7 +69,7 @@
 * **Author Response**: "Thank you! Proceeding to merge staging to main."
 * **Status**: Merged into `lab4-staging`.
 
-### Lab 4 Final Release to Main - Commit `5c0fa6d`
+### Lab 4 Final Release to Main - PR #73
 * **Summary**: Production release merging `lab4-staging` into `main`, consolidating all Sprint 4 deliverables, 100% passing test suites, visual screenshots, and full regression integrity.
 * **Reviewer**: @Magiciancat9
 * **Reviewer Verdict**: Approved

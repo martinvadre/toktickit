@@ -113,7 +113,7 @@ p_body("Pull request 3 : https://github.com/martinvadre/toktickit/pull/64")
 p_body("Pull request 4 : https://github.com/martinvadre/toktickit/pull/65")
 p_body("Pull request 5 : https://github.com/martinvadre/toktickit/pull/70")
 p_body("Pull request 6 : https://github.com/martinvadre/toktickit/pull/72")
-p_body("Production Merge : Commit 5c0fa6d / https://github.com/martinvadre/toktickit/pull/54", space_after=12)
+p_body("Pull request main : https://github.com/martinvadre/toktickit/pull/73", space_after=12)
 
 p_h2("Kanban board")
 p_img("artifacts/lab-04/report/part1_github_kanban.png", width_inches=6.3)

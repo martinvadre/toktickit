@@ -159,7 +159,7 @@ const html = `
     <p><b>Pull request 4 :</b> <a href="https://github.com/martinvadre/toktickit/pull/65">https://github.com/martinvadre/toktickit/pull/65</a></p>
     <p><b>Pull request 5 :</b> <a href="https://github.com/martinvadre/toktickit/pull/70">https://github.com/martinvadre/toktickit/pull/70</a></p>
     <p><b>Pull request 6 :</b> <a href="https://github.com/martinvadre/toktickit/pull/72">https://github.com/martinvadre/toktickit/pull/72</a></p>
-    <p><b>Production Merge :</b> Commit 5c0fa6d / <a href="https://github.com/martinvadre/toktickit/pull/54">https://github.com/martinvadre/toktickit/pull/54</a></p>
+    <p><b>Pull request main :</b> <a href="https://github.com/martinvadre/toktickit/pull/73">https://github.com/martinvadre/toktickit/pull/73</a></p>
   </div>
 
   <h2>Kanban board</h2>
