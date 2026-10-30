@@ -31,150 +31,108 @@ const html = `
   }
   body {
     font-family: Arial, Helvetica, sans-serif;
-    color: #1f2937;
+    color: #000000;
     margin: 0;
     padding: 0;
     font-size: 10pt;
-    line-height: 1.5;
+    line-height: 1.4;
+  }
+  .title-text {
+    font-size: 20pt;
+    font-weight: bold;
+    color: #000000;
+    margin-top: 0;
+    margin-bottom: 12pt;
   }
   h1 {
     font-size: 15pt;
     font-weight: bold;
-    color: #111827;
+    color: #000000;
     margin-top: 4pt;
     margin-bottom: 6pt;
-    border-bottom: 1.5pt solid #1E5E3A;
-    padding-bottom: 4pt;
+    page-break-after: avoid;
   }
   h2 {
     font-size: 12pt;
     font-weight: bold;
-    color: #1E5E3A;
+    color: #000000;
     margin-top: 10pt;
     margin-bottom: 4pt;
+    page-break-after: avoid;
   }
   p {
     margin-top: 0;
-    margin-bottom: 5pt;
+    margin-bottom: 4pt;
+    color: #000000;
   }
-  .title-page {
-    padding-top: 10pt;
-  }
-  .title-page h1 {
-    font-size: 24pt;
-    color: #1E5E3A;
-    border-bottom: 2pt solid #1E5E3A;
-    padding-bottom: 8pt;
-    margin-bottom: 14pt;
-  }
-  .meta-box {
-    margin-bottom: 16pt;
-    line-height: 1.6;
-    font-size: 10.5pt;
-  }
-  .meta-box b {
-    color: #111827;
+  .title-meta p {
+    font-size: 11pt;
+    margin-bottom: 4pt;
   }
   .page-break {
     page-break-after: always;
   }
   .img-container {
     text-align: center;
-    margin: 6pt 0 10pt 0;
+    margin: 4pt 0 8pt 0;
     page-break-inside: avoid;
-  }
-  h1, h2 {
-    page-break-after: avoid;
   }
   img {
     max-width: 100%;
-    max-height: 330px;
+    max-height: 340px;
     width: auto;
     height: auto;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
   .img-single {
-    max-height: 520px;
+    max-height: 540px;
   }
   .img-compact {
-    max-height: 270px;
+    max-height: 310px;
   }
   .img-medium {
     max-width: 85%;
-    max-height: 330px;
+    max-height: 340px;
   }
   .img-small {
     max-width: 65%;
-    max-height: 330px;
-  }
-  .link-list {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    padding: 10pt 14pt;
-    margin-bottom: 14pt;
-  }
-  .link-list p {
-    margin-bottom: 3pt;
-    font-family: ui-monospace, Menlo, Consolas, monospace;
-    font-size: 9pt;
-  }
-  a {
-    color: #2563eb;
-    text-decoration: none;
-  }
-  a:hover {
-    text-decoration: underline;
-  }
-  .desc-box {
-    background: #f0fdf4;
-    border-left: 4px solid #2B8251;
-    padding: 8pt 12pt;
-    margin-bottom: 12pt;
-    font-size: 9.5pt;
+    max-height: 340px;
   }
 </style>
 </head>
 <body>
 
   <!-- TITLE PAGE -->
-  <div class="title-page">
-    <h1>Report_lab_04</h1>
-    <div class="meta-box">
-      <p><b>Author:</b> Pawarit Wongdaeng 67070503466</p>
-      <p><b>Github:</b> martinvadre</p>
-      <p><b>Peer reviewer:</b> Tatchakorn Thamnimitr 67070503415</p>
-      <p><b>Github:</b> Magiciancat9</p>
-      <p><b>Repository:</b> <a href="https://github.com/martinvadre/toktickit">https://github.com/martinvadre/toktickit</a></p>
-      <p><b>Project Kanban:</b> <a href="https://github.com/users/martinvadre/projects/3">https://github.com/users/martinvadre/projects/3</a></p>
-    </div>
-    <div class="img-container">
-      <img src="${toBase64Uri('artifacts/lab-04/report/part1_github_repo_main.png')}" style="max-height: 480px;" />
-    </div>
+  <p class="title-text">Report_lab_04</p>
+  <div class="title-meta">
+    <p><b>Pawarit Wongdaeng 67070503466</b></p>
+    <p>Github : martinvadre</p>
+    <p><b>Peer reviewer : Tatchakorn Thamnimitr 67070503415</b></p>
+    <p>Github : Magiciancat9</p>
+    <p>Repository : https://github.com/martinvadre/toktickit</p>
+    <p style="margin-bottom: 12pt;">Project Kanban : https://github.com/users/martinvadre/projects/3</p>
+  </div>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_github_repo_main.png')}" style="max-height: 480px;" />
   </div>
   <div class="page-break"></div>
 
   <!-- ANSWER PART 1 -->
   <h1>Answer Part 1: Git Use with Engineering Workflow</h1>
-  <div class="link-list">
-    <p><b>Repository :</b> <a href="https://github.com/martinvadre/toktickit">https://github.com/martinvadre/toktickit</a></p>
-    <p><b>Project :</b> <a href="https://github.com/users/martinvadre/projects/3">https://github.com/users/martinvadre/projects/3</a></p>
-    <p><b>Issue 17 :</b> <a href="https://github.com/martinvadre/toktickit/issues/55">https://github.com/martinvadre/toktickit/issues/55</a></p>
-    <p><b>Issue 18 :</b> <a href="https://github.com/martinvadre/toktickit/issues/56">https://github.com/martinvadre/toktickit/issues/56</a></p>
-    <p><b>Issue 19 :</b> <a href="https://github.com/martinvadre/toktickit/issues/57">https://github.com/martinvadre/toktickit/issues/57</a></p>
-    <p><b>Issue 20 :</b> <a href="https://github.com/martinvadre/toktickit/issues/58">https://github.com/martinvadre/toktickit/issues/58</a></p>
-    <p><b>Issue 21 :</b> <a href="https://github.com/martinvadre/toktickit/issues/68">https://github.com/martinvadre/toktickit/issues/68</a></p>
-    <p><b>Issue 22 :</b> <a href="https://github.com/martinvadre/toktickit/issues/71">https://github.com/martinvadre/toktickit/issues/71</a></p>
-    <p><b>Pull request 1 :</b> <a href="https://github.com/martinvadre/toktickit/pull/62">https://github.com/martinvadre/toktickit/pull/62</a></p>
-    <p><b>Pull request 2 :</b> <a href="https://github.com/martinvadre/toktickit/pull/63">https://github.com/martinvadre/toktickit/pull/63</a></p>
-    <p><b>Pull request 3 :</b> <a href="https://github.com/martinvadre/toktickit/pull/64">https://github.com/martinvadre/toktickit/pull/64</a></p>
-    <p><b>Pull request 4 :</b> <a href="https://github.com/martinvadre/toktickit/pull/65">https://github.com/martinvadre/toktickit/pull/65</a></p>
-    <p><b>Pull request 5 :</b> <a href="https://github.com/martinvadre/toktickit/pull/70">https://github.com/martinvadre/toktickit/pull/70</a></p>
-    <p><b>Pull request 6 :</b> <a href="https://github.com/martinvadre/toktickit/pull/72">https://github.com/martinvadre/toktickit/pull/72</a></p>
-    <p><b>Pull request main :</b> <a href="https://github.com/martinvadre/toktickit/pull/73">https://github.com/martinvadre/toktickit/pull/73</a></p>
-  </div>
+  <p>Repository : https://github.com/martinvadre/toktickit</p>
+  <p>Project : https://github.com/users/martinvadre/projects/3</p>
+  <p>Issue 17 : https://github.com/martinvadre/toktickit/issues/55</p>
+  <p>Issue 18 : https://github.com/martinvadre/toktickit/issues/56</p>
+  <p>Issue 19 : https://github.com/martinvadre/toktickit/issues/57</p>
+  <p>Issue 20 : https://github.com/martinvadre/toktickit/issues/58</p>
+  <p>Issue 21 : https://github.com/martinvadre/toktickit/issues/68</p>
+  <p>Issue 22 : https://github.com/martinvadre/toktickit/issues/71</p>
+  <p>Pull request 1 : https://github.com/martinvadre/toktickit/pull/62</p>
+  <p>Pull request 2 : https://github.com/martinvadre/toktickit/pull/63</p>
+  <p>Pull request 3 : https://github.com/martinvadre/toktickit/pull/64</p>
+  <p>Pull request 4 : https://github.com/martinvadre/toktickit/pull/65</p>
+  <p>Pull request 5 : https://github.com/martinvadre/toktickit/pull/70</p>
+  <p>Pull request 6 : https://github.com/martinvadre/toktickit/pull/72</p>
+  <p style="margin-bottom: 12pt;">Pull request main : https://github.com/martinvadre/toktickit/pull/73</p>
 
   <h2>Kanban board</h2>
   <div class="img-container">
@@ -287,28 +245,19 @@ const html = `
   <div class="page-break"></div>
 
   <h2>Rendered Reviewer.md</h2>
-  <p><b>Author:</b> Pawarit Wongdaeng 67070503466 - GitHub: @martinvadre</p>
-  <p><b>Peer reviewer:</b> Tatchakorn Thamnimitr 67070503415 - GitHub: @Magiciancat9</p>
+  <p><b>Author: Pawarit Wongdaeng 67070503466 - GitHub: @martinvadre</b></p>
+  <p><b>Peer reviewer: Tatchakorn Thamnimitr 67070503415 - GitHub: @Magiciancat9</b></p>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered.png')}" style="max-height: 350px;" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered.png')}" class="img-compact" />
   </div>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered_comments.png')}" style="max-height: 350px;" />
-  </div>
-  <div class="page-break"></div>
-
-  <h2>Rendered Reviewer.md (Continued — Review Comments & Partner PR Reviews)</h2>
-  <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered_2.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered_2.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
   <!-- ANSWER PART 2 -->
   <h1>Answer Part 2: Spec DD (Specification-Driven Development)</h1>
-  <p><b>Specification Link:</b> <a href="https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/specification.md">https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/specification.md</a></p>
-  <div class="desc-box">
-    Documented numbered Functional Requirements (FR-01 to FR-15), Business Rules (BR-01 to BR-08), Acceptance Criteria (AC-01 to AC-10), Database Models (ActionTaken parent-child relations), Non-destructive Migration Decisions, Authoritative Status Lifecycle Transitions, and Product Definition of Done before implementation began.
-  </div>
+  <p><b>Specification Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/specification.md</b></p>
 
   <h2>Rendered docs/lab-04/specification.md</h2>
   <div class="img-container">
@@ -316,7 +265,6 @@ const html = `
   </div>
 
   <h2>Early Specification Proof: Commit 6eae025 & PR #62</h2>
-  <p>PR #62 merged into lab4-staging at commit 6eae025 prior to any feature branch implementation.</p>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part2_spec_early_proof.png')}" class="img-compact" />
   </div>
@@ -324,23 +272,20 @@ const html = `
 
   <!-- ANSWER PART 3 -->
   <h1>Answer Part 3: Test DD and Traceability</h1>
-  <p><b>Test Plan Link:</b> <a href="https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/tests.md">https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/tests.md</a></p>
-  <div class="desc-box">
-    Planned test matrix mapped 1:1 against Acceptance Criteria with 151 / 151 automated tests passing (100% success rate) across backend integration, frontend RTL components, and Playwright end-to-end workflows.
-  </div>
+  <p><b>Test Plan Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/tests.md</b></p>
 
   <h2>Rendered docs/lab-04/tests.md</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part3_tests_rendered.png')}" class="img-compact" />
   </div>
 
-  <h2>Vitest Backend Suite (92 / 92 Passing across 21 test files)</h2>
+  <h2>Vitest Backend Suite (92 / 92 Passing)</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part3_test_backend_pass.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
-  <h2>Vitest Frontend Suite (53 / 53 Passing across 15 test files)</h2>
+  <h2>Vitest Frontend Suite (53 / 53 Passing)</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part3_test_frontend_pass.png')}" />
   </div>
@@ -353,10 +298,7 @@ const html = `
 
   <!-- ANSWER PART 4 -->
   <h1>Answer Part 4: AI Use with Reflection</h1>
-  <p><b>AI Log Link:</b> <a href="https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ai-use.md">https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ai-use.md</a></p>
-  <div class="desc-box">
-    Rendered view of docs/lab-04/ai-use.md documenting Antigravity coding agent with Gemini 3.8 Flash (High), prompt iterations across 6 key development phases (PROMPT-01 to PROMPT-06), validation strategies, and engineering reflection on plan-first agent collaboration.
-  </div>
+  <p><b>AI Log Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ai-use.md</b></p>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part4_ai_use_rendered.png')}" class="img-single" />
   </div>
@@ -364,16 +306,13 @@ const html = `
 
   <!-- ANSWER PART 5 -->
   <h1>Answer Part 5: Working IT Staff Dashboard UI</h1>
-  <div class="desc-box">
-    Demonstrates operational IT Staff dashboard summarizing service-desk workload with authoritative metric counters (New, Open, In Progress, Waiting for Requester, My Assigned), recent and urgent ticket alerts, quick action shortcuts, and seamless drill-down navigation into filtered queues. Counts are verified to match real-time database aggregation queries.
-  </div>
 
   <h2>1. IT Staff Dashboard (Desktop View 1280px)</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/screenshots/staff-dashboard/desktop.png')}" class="img-compact" />
   </div>
 
-  <h2>2. Authoritative Database Query Proof</h2>
+  <h2>2. Database Query Proof</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part5_staff_dashboard_sql_proof.png')}" class="img-compact" />
   </div>
@@ -392,23 +331,19 @@ const html = `
 
   <!-- ANSWER PART 6 -->
   <h1>Answer Part 6: Working Actions Taken UI</h1>
-  <div class="desc-box">
-    Demonstrates parent-child Actions Taken work structure under Ticket Detail. Each action captures Date/Time, Description, Result, Performed By (auto-populated), Follow-Up Required toggle, mandatory Follow-up Note, Attachment Notes, and status lifecycle (Completed / Cancelled). Supports multiple IT Staff performers per ticket (BR-02) while Requesters receive read-only visibility.
-  </div>
 
   <h2>1. IT Staff Ticket Detail with Actions Taken List (Desktop)</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/staff-actions-desktop.png')}" class="img-compact" />
   </div>
 
-  <h2>2. Record / Edit Action Taken Modal Dialog with Validation</h2>
+  <h2>2. Record / Edit Action Taken Modal</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/action-modal.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
   <h2>3. Requester Ticket Detail (Read-Only Actions Taken View)</h2>
-  <p><i>Requesters can review all action history for transparency, but all action editing/creation controls are strictly omitted.</i></p>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/requester-actions-desktop.png')}" class="img-single" />
   </div>
@@ -416,16 +351,13 @@ const html = `
 
   <!-- ANSWER PART 7 -->
   <h1>Answer Part 7: Working Ticket Workflow</h1>
-  <div class="desc-box">
-    Enforces the authoritative Ticket Status transition matrix (New, Open, In Progress, Waiting for Requester, Resolved, Closed, Reopened, Cancelled). Moving to Resolved or Closed strictly requires a formal Resolution Summary (&gt;= 10 characters). Requester resolution indications are purely advisory and cannot bypass staff formal resolution. Stale concurrent updates trigger 409 Conflict alerts.
-  </div>
 
-  <h2>1. Mandatory Resolution Summary Gate Modal (&gt;= 10 characters required)</h2>
+  <h2>1. Mandatory Resolution Summary Modal</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part7_resolution_modal.png')}" class="img-compact" />
   </div>
 
-  <h2>2. Requester Advisory Resolution Cue (Badge Alert)</h2>
+  <h2>2. Requester Resolution Indication Badge</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part7_advisory_cue.png')}" class="img-compact" />
   </div>
@@ -433,9 +365,6 @@ const html = `
 
   <!-- ANSWER PART 8 -->
   <h1>Answer Part 8: Working Requester Dashboard and Final Regression UI</h1>
-  <div class="desc-box">
-    Demonstrates Requester dashboard summarizing only the authenticated Requester's tickets (My Open Tickets, In Progress, Resolved, Closed), recent activity, and quick navigation. Strict data isolation is enforced by the backend. Confirms full regression retention across all Labs 1-3 features (Auth, Passwords, My Tickets, Attachments, Comments, Notes, Admin User Management).
-  </div>
 
   <h2>1. Requester Dashboard (Desktop View 1280px)</h2>
   <div class="img-container">
@@ -456,10 +385,7 @@ const html = `
 
   <!-- ANSWER PART 9 -->
   <h1>Answer Part 9: Zen Green UI, Responsive, Accessibility, and Final Polish</h1>
-  <p><b>UI Spec Link:</b> <a href="https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ui-spec.md">https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ui-spec.md</a></p>
-  <div class="desc-box">
-    Full adherence to the Zen Green design system (#1E5E3A, #2B8251, #EBF5EE), completed visual and accessibility verification checklist, and seamless responsive behavior across Desktop (1280px), Tablet (768px), and Mobile (375px) viewports with zero horizontal scrolling or clipping.
-  </div>
+  <p><b>UI Spec Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ui-spec.md</b></p>
 
   <h2>Rendered docs/lab-04/ui-spec.md</h2>
   <div class="img-container">

@@ -192,43 +192,36 @@ p_h2("Rendered Reviewer.md")
 p_body("Author: Pawarit Wongdaeng 67070503466 - GitHub: @martinvadre", bold=True)
 p_body("Peer reviewer: Tatchakorn Thamnimitr 67070503415 - GitHub: @Magiciancat9", bold=True, space_after=6)
 p_img("artifacts/lab-04/report/part1_reviewer_rendered.png", width_inches=5.4, space_after=4)
-p_img("artifacts/lab-04/report/part1_reviewer_rendered_comments.png", width_inches=5.4, space_after=4)
-page_break()
-
-p_h2("Rendered Reviewer.md (Continued — Review Comments & Partner PR Reviews)")
-p_img("artifacts/lab-04/report/part1_reviewer_rendered_2.png", width_inches=6.2)
+p_img("artifacts/lab-04/report/part1_reviewer_rendered_2.png", width_inches=5.4, space_after=4)
 page_break()
 
 # =============================================================
 # ANSWER PART 2: SPEC DD
 # =============================================================
 p_h1("Answer Part 2: Spec DD (Specification-Driven Development)")
-p_body("Specification Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/specification.md", bold=True)
-p_body("Documented numbered Functional Requirements (FR-01 to FR-15), Business Rules (BR-01 to BR-08), Acceptance Criteria (AC-01 to AC-10), Database Models (ActionTaken parent-child relations), Non-destructive Migration Decisions, Authoritative Status Lifecycle Transitions, and Product Definition of Done before implementation began.", space_after=6)
+p_body("Specification Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/specification.md", bold=True, space_after=6)
 
 p_h2("Rendered docs/lab-04/specification.md")
-p_img("artifacts/lab-04/report/part2_spec_rendered.png", height_inches=2.7)
+p_img("artifacts/lab-04/report/part2_spec_rendered.png", height_inches=3.0)
 
 p_h2("Early Specification Proof: Commit 6eae025 & PR #62")
-p_body("PR #62 merged into lab4-staging at commit 6eae025 prior to any feature branch implementation.")
-p_img("artifacts/lab-04/report/part2_spec_early_proof.png", height_inches=2.7)
+p_img("artifacts/lab-04/report/part2_spec_early_proof.png", height_inches=3.0)
 page_break()
 
 # =============================================================
 # ANSWER PART 3: TEST DD AND TRACEABILITY
 # =============================================================
 p_h1("Answer Part 3: Test DD and Traceability")
-p_body("Test Plan Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/tests.md", bold=True)
-p_body("Planned test matrix mapped 1:1 against Acceptance Criteria with 151 / 151 automated tests passing (100% success rate) across backend integration, frontend RTL components, and Playwright end-to-end workflows.", space_after=6)
+p_body("Test Plan Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/tests.md", bold=True, space_after=6)
 
 p_h2("Rendered docs/lab-04/tests.md")
-p_img("artifacts/lab-04/report/part3_tests_rendered.png", height_inches=2.7)
+p_img("artifacts/lab-04/report/part3_tests_rendered.png", height_inches=3.0)
 
-p_h2("Vitest Backend Suite (92 / 92 Passing across 21 test files)")
-p_img("artifacts/lab-04/report/part3_test_backend_pass.png", height_inches=2.7)
+p_h2("Vitest Backend Suite (92 / 92 Passing)")
+p_img("artifacts/lab-04/report/part3_test_backend_pass.png", height_inches=3.0)
 page_break()
 
-p_h2("Vitest Frontend Suite (53 / 53 Passing across 15 test files)")
+p_h2("Vitest Frontend Suite (53 / 53 Passing)")
 p_img("artifacts/lab-04/report/part3_test_frontend_pass.png", width_inches=5.5)
 
 p_h2("Playwright End-to-End Suite (14 / 14 Passing)")
@@ -239,8 +232,7 @@ page_break()
 # ANSWER PART 4: AI USE WITH REFLECTION
 # =============================================================
 p_h1("Answer Part 4: AI Use with Reflection")
-p_body("AI Log Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ai-use.md", bold=True)
-p_body("Rendered view of docs/lab-04/ai-use.md documenting Antigravity coding agent with Gemini 3.8 Flash (High), prompt iterations across 6 key development phases (PROMPT-01 to PROMPT-06), validation strategies, and engineering reflection on plan-first agent collaboration.", space_after=8)
+p_body("AI Log Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ai-use.md", bold=True, space_after=8)
 
 p_img("artifacts/lab-04/report/part4_ai_use_rendered.png", width_inches=6.2)
 page_break()
@@ -249,13 +241,12 @@ page_break()
 # ANSWER PART 5: WORKING IT STAFF DASHBOARD UI
 # =============================================================
 p_h1("Answer Part 5: Working IT Staff Dashboard UI")
-p_body("Demonstrates operational IT Staff dashboard summarizing service-desk workload with authoritative metric counters (New, Open, In Progress, Waiting for Requester, My Assigned), recent and urgent ticket alerts, quick action shortcuts, and seamless drill-down navigation into filtered queues. Counts are verified to match real-time database aggregation queries.", space_after=6)
 
 p_h2("1. IT Staff Dashboard (Desktop View 1280px)")
-p_img("artifacts/lab-04/screenshots/staff-dashboard/desktop.png", height_inches=2.7)
+p_img("artifacts/lab-04/screenshots/staff-dashboard/desktop.png", height_inches=3.0)
 
-p_h2("2. Authoritative Database Query Proof")
-p_img("artifacts/lab-04/report/part5_staff_dashboard_sql_proof.png", height_inches=2.7)
+p_h2("2. Database Query Proof")
+p_img("artifacts/lab-04/report/part5_staff_dashboard_sql_proof.png", height_inches=3.0)
 page_break()
 
 p_h2("3. IT Staff Dashboard (Tablet View 768px)")
@@ -269,62 +260,57 @@ page_break()
 # ANSWER PART 6: WORKING ACTIONS TAKEN UI
 # =============================================================
 p_h1("Answer Part 6: Working Actions Taken UI")
-p_body("Demonstrates parent-child Actions Taken work structure under Ticket Detail. Each action captures Date/Time, Description, Result, Performed By (auto-populated), Follow-Up Required toggle, mandatory Follow-up Note, Attachment Notes, and status lifecycle (Completed / Cancelled). Supports multiple IT Staff performers per ticket (BR-02) while Requesters receive read-only visibility.", space_after=6)
 
 p_h2("1. IT Staff Ticket Detail with Actions Taken List (Desktop)")
-p_img("artifacts/lab-04/screenshots/actions-taken/staff-actions-desktop.png", height_inches=2.7)
+p_img("artifacts/lab-04/screenshots/actions-taken/staff-actions-desktop.png", height_inches=3.0)
 
-p_h2("2. Record / Edit Action Taken Modal Dialog with Validation")
-p_img("artifacts/lab-04/screenshots/actions-taken/action-modal.png", height_inches=2.7)
+p_h2("2. Record / Edit Action Taken Modal")
+p_img("artifacts/lab-04/screenshots/actions-taken/action-modal.png", height_inches=3.0)
 page_break()
 
 p_h2("3. Requester Ticket Detail (Read-Only Actions Taken View)")
-p_body("Requesters can review all action history for transparency, but all action editing/creation controls are strictly omitted.", italic=True)
-p_img("artifacts/lab-04/screenshots/actions-taken/requester-actions-desktop.png", height_inches=5.4)
+p_img("artifacts/lab-04/screenshots/actions-taken/requester-actions-desktop.png", height_inches=5.6)
 page_break()
 
 # =============================================================
 # ANSWER PART 7: WORKING TICKET WORKFLOW
 # =============================================================
 p_h1("Answer Part 7: Working Ticket Workflow")
-p_body("Enforces the authoritative Ticket Status transition matrix (New, Open, In Progress, Waiting for Requester, Resolved, Closed, Reopened, Cancelled). Moving to Resolved or Closed strictly requires a formal Resolution Summary (>= 10 characters). Requester resolution indications are purely advisory and cannot bypass staff formal resolution. Stale concurrent updates trigger 409 Conflict alerts.", space_after=6)
 
-p_h2("1. Mandatory Resolution Summary Gate Modal (>= 10 characters required)")
-p_img("artifacts/lab-04/report/part7_resolution_modal.png", height_inches=2.7)
+p_h2("1. Mandatory Resolution Summary Modal")
+p_img("artifacts/lab-04/report/part7_resolution_modal.png", height_inches=3.0)
 
-p_h2("2. Requester Advisory Resolution Cue (Badge Alert)")
-p_img("artifacts/lab-04/report/part7_advisory_cue.png", height_inches=2.7)
+p_h2("2. Requester Resolution Indication Badge")
+p_img("artifacts/lab-04/report/part7_advisory_cue.png", height_inches=3.0)
 page_break()
 
 # =============================================================
 # ANSWER PART 8: WORKING REQUESTER DASHBOARD AND FINAL REGRESSION UI
 # =============================================================
 p_h1("Answer Part 8: Working Requester Dashboard and Final Regression UI")
-p_body("Demonstrates Requester dashboard summarizing only the authenticated Requester's tickets (My Open Tickets, In Progress, Resolved, Closed), recent activity, and quick navigation. Strict data isolation is enforced by the backend. Confirms full regression retention across all Labs 1-3 features (Auth, Passwords, My Tickets, Attachments, Comments, Notes, Admin User Management).", space_after=6)
 
 p_h2("1. Requester Dashboard (Desktop View 1280px)")
-p_img("artifacts/lab-04/screenshots/requester-dashboard/desktop.png", height_inches=2.7)
+p_img("artifacts/lab-04/screenshots/requester-dashboard/desktop.png", height_inches=3.0)
 
 p_h2("2. Requester Dashboard (Tablet View 768px)")
-p_img("artifacts/lab-04/screenshots/requester-dashboard/tablet.png", height_inches=2.7)
+p_img("artifacts/lab-04/screenshots/requester-dashboard/tablet.png", height_inches=3.0)
 page_break()
 
 p_h2("3. Requester Dashboard (Mobile View 375px)")
-p_img("artifacts/lab-04/screenshots/requester-dashboard/mobile.png", height_inches=5.4)
+p_img("artifacts/lab-04/screenshots/requester-dashboard/mobile.png", height_inches=5.6)
 page_break()
 
 # =============================================================
 # ANSWER PART 9: ZEN GREEN UI, RESPONSIVE, ACCESSIBILITY, AND FINAL POLISH
 # =============================================================
 p_h1("Answer Part 9: Zen Green UI, Responsive, Accessibility, and Final Polish")
-p_body("UI Spec Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ui-spec.md", bold=True)
-p_body("Full adherence to the Zen Green design system (#1E5E3A, #2B8251, #EBF5EE), completed visual and accessibility verification checklist, and seamless responsive behavior across Desktop (1280px), Tablet (768px), and Mobile (375px) viewports with zero horizontal scrolling or clipping.", space_after=6)
+p_body("UI Spec Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/ui-spec.md", bold=True, space_after=6)
 
 p_h2("Rendered docs/lab-04/ui-spec.md")
-p_img("artifacts/lab-04/report/part9_ui_spec_rendered.png", height_inches=2.7)
+p_img("artifacts/lab-04/report/part9_ui_spec_rendered.png", height_inches=3.0)
 
 p_h2("Zen Green Design & Accessibility Verification Checklist")
-p_img("artifacts/lab-04/report/part9_visual_checklist.png", height_inches=2.7)
+p_img("artifacts/lab-04/report/part9_visual_checklist.png", height_inches=3.0)
 
 # Save DOCX
 os.makedirs(os.path.dirname(OUT_DOCX), exist_ok=True)
