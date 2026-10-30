@@ -116,7 +116,21 @@ p_body("Pull request 3 : https://github.com/martinvadre/toktickit/pull/64")
 p_body("Pull request 4 : https://github.com/martinvadre/toktickit/pull/65")
 p_body("Pull request 5 : https://github.com/martinvadre/toktickit/pull/70")
 p_body("Pull request 6 : https://github.com/martinvadre/toktickit/pull/72")
-p_body("Pull request main : https://github.com/martinvadre/toktickit/pull/73", space_after=12)
+p_body("Pull request main : https://github.com/martinvadre/toktickit/pull/73")
+p_body("Peer review PR 1 : https://github.com/Magiciancat9/toktickit/pull/60")
+p_body("Peer review PR 2 : https://github.com/Magiciancat9/toktickit/pull/63")
+p_body("Peer review PR 3 : https://github.com/Magiciancat9/toktickit/pull/65")
+p_body("Peer review PR 4 : https://github.com/Magiciancat9/toktickit/pull/67")
+p_body("Peer review PR 5 : https://github.com/Magiciancat9/toktickit/pull/76")
+p_body("Peer review PR 6 : https://github.com/Magiciancat9/toktickit/pull/77")
+p_body("Peer review PR 7 : https://github.com/Magiciancat9/toktickit/pull/78")
+p_body("Peer review PR 8 : https://github.com/Magiciancat9/toktickit/pull/79")
+p_body("Peer review PR 9 : https://github.com/Magiciancat9/toktickit/pull/80")
+p_body("Peer review PR 10 : https://github.com/Magiciancat9/toktickit/pull/81")
+p_body("Peer review PR 11 : https://github.com/Magiciancat9/toktickit/pull/82")
+p_body("Peer review PR 12 : https://github.com/Magiciancat9/toktickit/pull/83")
+p_body("Peer review PR main : https://github.com/Magiciancat9/toktickit/pull/84", space_after=12)
+page_break()
 
 p_h2("Kanban board")
 p_img("artifacts/lab-04/report/part1_github_kanban.png", width_inches=5.5)
@@ -176,7 +190,52 @@ p_img("artifacts/lab-04/report/part1_github_pr72.png", width_inches=5.5)
 page_break()
 
 p_h2("Pull Requests main - https://github.com/martinvadre/toktickit/pull/73")
-p_img("artifacts/lab-04/report/part1_github_pr73.png", width_inches=6.2)
+p_img("artifacts/lab-04/report/part1_github_pr73.png", width_inches=5.5)
+
+p_h2("Peer Review PR 1 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/60")
+p_img("artifacts/lab-04/report/part1_partner_pr60.png", width_inches=5.5)
+page_break()
+
+p_h2("Peer Review PR 2 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/63")
+p_img("artifacts/lab-04/report/part1_partner_pr63.png", width_inches=5.5)
+
+p_h2("Peer Review PR 3 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/65")
+p_img("artifacts/lab-04/report/part1_partner_pr65.png", width_inches=5.5)
+page_break()
+
+p_h2("Peer Review PR 4 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/67")
+p_img("artifacts/lab-04/report/part1_partner_pr67.png", width_inches=5.5)
+
+p_h2("Peer Review PR 5 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/76")
+p_img("artifacts/lab-04/report/part1_partner_pr76.png", width_inches=5.5)
+page_break()
+
+p_h2("Peer Review PR 6 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/77")
+p_img("artifacts/lab-04/report/part1_partner_pr77.png", width_inches=5.5)
+
+p_h2("Peer Review PR 7 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/78")
+p_img("artifacts/lab-04/report/part1_partner_pr78.png", width_inches=5.5)
+page_break()
+
+p_h2("Peer Review PR 8 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/79")
+p_img("artifacts/lab-04/report/part1_partner_pr79.png", width_inches=5.5)
+
+p_h2("Peer Review PR 9 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/80")
+p_img("artifacts/lab-04/report/part1_partner_pr80.png", width_inches=5.5)
+page_break()
+
+p_h2("Peer Review PR 10 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/81")
+p_img("artifacts/lab-04/report/part1_partner_pr81.png", width_inches=5.5)
+
+p_h2("Peer Review PR 11 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/82")
+p_img("artifacts/lab-04/report/part1_partner_pr82.png", width_inches=5.5)
+page_break()
+
+p_h2("Peer Review PR 12 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/83")
+p_img("artifacts/lab-04/report/part1_partner_pr83.png", width_inches=5.5)
+
+p_h2("Peer Review PR main (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/84")
+p_img("artifacts/lab-04/report/part1_partner_pr84.png", width_inches=5.5)
 page_break()
 
 p_h2("Directory Structure & .gitignore")

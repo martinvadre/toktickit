@@ -132,7 +132,21 @@ const html = `
   <p>Pull request 4 : https://github.com/martinvadre/toktickit/pull/65</p>
   <p>Pull request 5 : https://github.com/martinvadre/toktickit/pull/70</p>
   <p>Pull request 6 : https://github.com/martinvadre/toktickit/pull/72</p>
-  <p style="margin-bottom: 12pt;">Pull request main : https://github.com/martinvadre/toktickit/pull/73</p>
+  <p>Pull request main : https://github.com/martinvadre/toktickit/pull/73</p>
+  <p>Peer review PR 1 : https://github.com/Magiciancat9/toktickit/pull/60</p>
+  <p>Peer review PR 2 : https://github.com/Magiciancat9/toktickit/pull/63</p>
+  <p>Peer review PR 3 : https://github.com/Magiciancat9/toktickit/pull/65</p>
+  <p>Peer review PR 4 : https://github.com/Magiciancat9/toktickit/pull/67</p>
+  <p>Peer review PR 5 : https://github.com/Magiciancat9/toktickit/pull/76</p>
+  <p>Peer review PR 6 : https://github.com/Magiciancat9/toktickit/pull/77</p>
+  <p>Peer review PR 7 : https://github.com/Magiciancat9/toktickit/pull/78</p>
+  <p>Peer review PR 8 : https://github.com/Magiciancat9/toktickit/pull/79</p>
+  <p>Peer review PR 9 : https://github.com/Magiciancat9/toktickit/pull/80</p>
+  <p>Peer review PR 10 : https://github.com/Magiciancat9/toktickit/pull/81</p>
+  <p>Peer review PR 11 : https://github.com/Magiciancat9/toktickit/pull/82</p>
+  <p>Peer review PR 12 : https://github.com/Magiciancat9/toktickit/pull/83</p>
+  <p style="margin-bottom: 12pt;">Peer review PR main : https://github.com/Magiciancat9/toktickit/pull/84</p>
+  <div class="page-break"></div>
 
   <h2>Kanban board</h2>
   <div class="img-container">
@@ -226,6 +240,77 @@ const html = `
   <h2>Pull Requests main - https://github.com/martinvadre/toktickit/pull/73</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part1_github_pr73.png')}" />
+  </div>
+
+  <h2>Peer Review PR 1 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/60</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr60.png')}" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Peer Review PR 2 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/63</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr63.png')}" />
+  </div>
+
+  <h2>Peer Review PR 3 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/65</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr65.png')}" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Peer Review PR 4 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/67</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr67.png')}" />
+  </div>
+
+  <h2>Peer Review PR 5 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/76</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr76.png')}" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Peer Review PR 6 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/77</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr77.png')}" />
+  </div>
+
+  <h2>Peer Review PR 7 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/78</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr78.png')}" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Peer Review PR 8 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/79</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr79.png')}" />
+  </div>
+
+  <h2>Peer Review PR 9 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/80</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr80.png')}" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Peer Review PR 10 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/81</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr81.png')}" />
+  </div>
+
+  <h2>Peer Review PR 11 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/82</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr82.png')}" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Peer Review PR 12 (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/83</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr83.png')}" />
+  </div>
+
+  <h2>Peer Review PR main (Partner @Magiciancat9) - https://github.com/Magiciancat9/toktickit/pull/84</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_partner_pr84.png')}" />
   </div>
   <div class="page-break"></div>
 
