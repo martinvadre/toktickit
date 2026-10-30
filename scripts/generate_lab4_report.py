@@ -195,6 +195,10 @@ p_img("artifacts/lab-04/report/part1_reviewer_rendered.png", width_inches=5.4, s
 p_img("artifacts/lab-04/report/part1_reviewer_rendered_2.png", width_inches=5.4, space_after=4)
 page_break()
 
+p_h2("Rendered Reviewer.md (Partner PR Reviews Continued)")
+p_img("artifacts/lab-04/report/part1_reviewer_rendered_3.png", width_inches=6.2)
+page_break()
+
 # =============================================================
 # ANSWER PART 2: SPEC DD
 # =============================================================

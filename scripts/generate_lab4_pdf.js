@@ -255,6 +255,12 @@ const html = `
   </div>
   <div class="page-break"></div>
 
+  <h2>Rendered Reviewer.md (Partner PR Reviews Continued)</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered_3.png')}" />
+  </div>
+  <div class="page-break"></div>
+
   <!-- ANSWER PART 2 -->
   <h1>Answer Part 2: Spec DD (Specification-Driven Development)</h1>
   <p><b>Specification Link: https://github.com/martinvadre/toktickit/blob/main/docs/lab-04/specification.md</b></p>
