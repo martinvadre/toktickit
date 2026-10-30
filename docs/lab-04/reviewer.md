@@ -76,13 +76,13 @@ martinvadre: "The .md file looks good, what you added is decent, I think it's al
 Magiciancat9: "Thank you for checking it for me, you can merge it now"  
 
 PR #82 (feature11/lab4-documentation) - https://github.com/Magiciancat9/toktickit/pull/82  
-martinvadre: "I have reviewed the changes, everything looks good. Approved"  
+martinvadre: "the documentation looks good, everything is fine, approved"  
 Magiciancat9: "Thank you for checking this documentation for me you can merge now."  
 
 PR #83 (feature12/lab4-final-integration) - https://github.com/Magiciancat9/toktickit/pull/83  
-martinvadre: "The changes look great and the implementation is solid. Ready to merge."  
+martinvadre: "i go through your final integration code and it looks good, ready to merge, approved"  
 Magiciancat9: "Thank you you can merge this now."  
 
 PR #84 (lab4-staging -> main) - https://github.com/Magiciancat9/toktickit/pull/84  
-martinvadre: "The changes look great. The implementation is clean and straightforward, and the logic is easy to follow. I've reviewed the code and everything seems to be in order. Approved"  
+martinvadre: "overall everything looks great, all features work fine, ready to merge to main, approved"  
 Magiciancat9: "Thank you for review you can merge for me now."  
