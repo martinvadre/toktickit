@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const OUT_PDF = '/Users/martin/Uni/CPE334/Lab4/Lab Report 04.pdf';
+const OUT_PDF = '/Users/martin/Uni/CPE334 Soft Eng/Lab4/Lab Report 04.pdf';
 
 function toBase64Uri(relPath) {
   const absPath = path.join(REPO_ROOT, relPath);
@@ -41,8 +41,8 @@ const html = `
     font-size: 15pt;
     font-weight: bold;
     color: #111827;
-    margin-top: 18pt;
-    margin-bottom: 8pt;
+    margin-top: 4pt;
+    margin-bottom: 6pt;
     border-bottom: 1.5pt solid #1E5E3A;
     padding-bottom: 4pt;
   }
@@ -50,12 +50,12 @@ const html = `
     font-size: 12pt;
     font-weight: bold;
     color: #1E5E3A;
-    margin-top: 14pt;
-    margin-bottom: 6pt;
+    margin-top: 10pt;
+    margin-bottom: 4pt;
   }
   p {
     margin-top: 0;
-    margin-bottom: 6pt;
+    margin-bottom: 5pt;
   }
   .title-page {
     padding-top: 10pt;
@@ -80,20 +80,34 @@ const html = `
   }
   .img-container {
     text-align: center;
-    margin: 8pt 0 14pt 0;
+    margin: 6pt 0 10pt 0;
+    page-break-inside: avoid;
+  }
+  h1, h2 {
+    page-break-after: avoid;
   }
   img {
     max-width: 100%;
+    max-height: 330px;
+    width: auto;
     height: auto;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
+  .img-single {
+    max-height: 520px;
+  }
+  .img-compact {
+    max-height: 270px;
+  }
   .img-medium {
     max-width: 85%;
+    max-height: 330px;
   }
   .img-small {
     max-width: 65%;
+    max-height: 330px;
   }
   .link-list {
     background: #f9fafb;
@@ -251,6 +265,12 @@ const html = `
   </div>
   <div class="page-break"></div>
 
+  <h2>Pull Requests main - https://github.com/martinvadre/toktickit/pull/73</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_github_pr73.png')}" />
+  </div>
+  <div class="page-break"></div>
+
   <h2>Directory Structure & .gitignore</h2>
   <div class="img-container">
     <img src="${toBase64Uri('artifacts/lab-04/report/part1_directory_structure.png')}" />
@@ -270,7 +290,16 @@ const html = `
   <p><b>Author:</b> Pawarit Wongdaeng 67070503466 - GitHub: @martinvadre</p>
   <p><b>Peer reviewer:</b> Tatchakorn Thamnimitr 67070503415 - GitHub: @Magiciancat9</p>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered.png')}" style="max-height: 350px;" />
+  </div>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered_comments.png')}" style="max-height: 350px;" />
+  </div>
+  <div class="page-break"></div>
+
+  <h2>Rendered Reviewer.md (Continued — Review Comments & Partner PR Reviews)</h2>
+  <div class="img-container">
+    <img src="${toBase64Uri('artifacts/lab-04/report/part1_reviewer_rendered_2.png')}" />
   </div>
   <div class="page-break"></div>
 
@@ -283,13 +312,13 @@ const html = `
 
   <h2>Rendered docs/lab-04/specification.md</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part2_spec_rendered.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part2_spec_rendered.png')}" class="img-compact" />
   </div>
 
   <h2>Early Specification Proof: Commit 6eae025 & PR #62</h2>
   <p>PR #62 merged into lab4-staging at commit 6eae025 prior to any feature branch implementation.</p>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part2_spec_early_proof.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part2_spec_early_proof.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
@@ -302,12 +331,12 @@ const html = `
 
   <h2>Rendered docs/lab-04/tests.md</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part3_tests_rendered.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part3_tests_rendered.png')}" class="img-compact" />
   </div>
 
   <h2>Vitest Backend Suite (92 / 92 Passing across 21 test files)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part3_test_backend_pass.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part3_test_backend_pass.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
@@ -329,7 +358,7 @@ const html = `
     Rendered view of docs/lab-04/ai-use.md documenting Antigravity coding agent with Gemini 3.8 Flash (High), prompt iterations across 6 key development phases (PROMPT-01 to PROMPT-06), validation strategies, and engineering reflection on plan-first agent collaboration.
   </div>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part4_ai_use_rendered.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part4_ai_use_rendered.png')}" class="img-single" />
   </div>
   <div class="page-break"></div>
 
@@ -341,12 +370,12 @@ const html = `
 
   <h2>1. IT Staff Dashboard (Desktop View 1280px)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/staff-dashboard/desktop.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/staff-dashboard/desktop.png')}" class="img-compact" />
   </div>
 
   <h2>2. Authoritative Database Query Proof</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part5_staff_dashboard_sql_proof.png')}" class="img-medium" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part5_staff_dashboard_sql_proof.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
@@ -369,19 +398,19 @@ const html = `
 
   <h2>1. IT Staff Ticket Detail with Actions Taken List (Desktop)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/staff-actions-desktop.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/staff-actions-desktop.png')}" class="img-compact" />
   </div>
 
   <h2>2. Record / Edit Action Taken Modal Dialog with Validation</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/action-modal.png')}" class="img-medium" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/action-modal.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
   <h2>3. Requester Ticket Detail (Read-Only Actions Taken View)</h2>
   <p><i>Requesters can review all action history for transparency, but all action editing/creation controls are strictly omitted.</i></p>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/requester-actions-desktop.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/actions-taken/requester-actions-desktop.png')}" class="img-single" />
   </div>
   <div class="page-break"></div>
 
@@ -393,12 +422,12 @@ const html = `
 
   <h2>1. Mandatory Resolution Summary Gate Modal (&gt;= 10 characters required)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part7_resolution_modal.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part7_resolution_modal.png')}" class="img-compact" />
   </div>
 
   <h2>2. Requester Advisory Resolution Cue (Badge Alert)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part7_advisory_cue.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part7_advisory_cue.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
@@ -410,18 +439,18 @@ const html = `
 
   <h2>1. Requester Dashboard (Desktop View 1280px)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/requester-dashboard/desktop.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/requester-dashboard/desktop.png')}" class="img-compact" />
   </div>
 
   <h2>2. Requester Dashboard (Tablet View 768px)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/requester-dashboard/tablet.png')}" class="img-medium" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/requester-dashboard/tablet.png')}" class="img-compact" />
   </div>
   <div class="page-break"></div>
 
   <h2>3. Requester Dashboard (Mobile View 375px)</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/screenshots/requester-dashboard/mobile.png')}" class="img-small" />
+    <img src="${toBase64Uri('artifacts/lab-04/screenshots/requester-dashboard/mobile.png')}" class="img-single" />
   </div>
   <div class="page-break"></div>
 
@@ -434,12 +463,12 @@ const html = `
 
   <h2>Rendered docs/lab-04/ui-spec.md</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part9_ui_spec_rendered.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part9_ui_spec_rendered.png')}" class="img-compact" />
   </div>
 
   <h2>Zen Green Design & Accessibility Verification Checklist</h2>
   <div class="img-container">
-    <img src="${toBase64Uri('artifacts/lab-04/report/part9_visual_checklist.png')}" />
+    <img src="${toBase64Uri('artifacts/lab-04/report/part9_visual_checklist.png')}" class="img-compact" />
   </div>
 
 </body>
