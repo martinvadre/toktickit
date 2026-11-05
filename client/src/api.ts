@@ -146,7 +146,7 @@ export interface Ticket {
   description: string;
   requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   itPriority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  currentStatus: "NEW" | "OPEN" | "ASSIGNED" | "IN_PROGRESS" | "WAITING_FOR_REQUESTER" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "REOPENED" | "CANCELLED";
   requesterIndicatedResolved?: boolean;
   resolutionSummary?: string | null;
   resolvedAt?: string | null;
@@ -188,7 +188,7 @@ export interface TicketListItem {
   summary: string;
   description?: string;
   requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  currentStatus: "NEW" | "OPEN" | "ASSIGNED" | "IN_PROGRESS" | "WAITING_FOR_REQUESTER" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "REOPENED" | "CANCELLED";
   createdAt: string;
   updatedAt: string;
   category?: Category;
@@ -219,7 +219,12 @@ export interface CheckSystemResult {
   error?: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL =
+  import.meta.env.VITE_API_URL !== undefined
+    ? import.meta.env.VITE_API_URL
+    : import.meta.env.PROD
+    ? ""
+    : "http://localhost:3000";
 
 export async function fetchRequesters(): Promise<RequesterUser[]> {
   const response = await fetch(`${API_URL}/api/requesters`);
@@ -251,10 +256,10 @@ export async function fetchRelatedSystems(): Promise<RelatedSystem[]> {
 export async function createTicket(payload: CreateTicketPayload): Promise<Ticket> {
   const response = await fetch(`${API_URL}/api/tickets`, {
     method: "POST",
-    headers: {
+    headers: getAuthHeaders({
       "Content-Type": "application/json",
       "x-requester-id": String(payload.requesterId),
-    },
+    }),
     body: JSON.stringify(payload),
   });
 
@@ -283,9 +288,9 @@ export async function fetchMyTickets(params: GetTicketsParams): Promise<GetTicke
   if (params.sortOrder) query.set("sortOrder", params.sortOrder);
 
   const response = await fetch(`${API_URL}/api/tickets?${query.toString()}`, {
-    headers: {
+    headers: getAuthHeaders({
       "x-requester-id": String(params.requesterId),
-    },
+    }),
   });
 
   if (!response.ok) {
@@ -324,9 +329,9 @@ export async function uploadAttachment(
 
   const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, {
     method: "POST",
-    headers: {
+    headers: getAuthHeaders({
       "x-requester-id": String(requesterId),
-    },
+    }),
     body: formData,
   });
 
@@ -345,9 +350,9 @@ export async function downloadAttachment(
   fileName: string
 ): Promise<void> {
   const response = await fetch(`${API_URL}/api/attachments/${attachmentId}/download`, {
-    headers: {
+    headers: getAuthHeaders({
       "x-requester-id": String(requesterId),
-    },
+    }),
   });
 
   if (!response.ok) {
@@ -373,10 +378,10 @@ export async function removeAttachment(
 ): Promise<Attachment> {
   const response = await fetch(`${API_URL}/api/attachments/${attachmentId}`, {
     method: "DELETE",
-    headers: {
+    headers: getAuthHeaders({
       "Content-Type": "application/json",
       "x-requester-id": String(requesterId),
-    },
+    }),
     body: JSON.stringify({ reason }),
   });
 
@@ -492,7 +497,7 @@ export interface StaffTicket {
   description: string;
   requestedPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   itPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  currentStatus: "NEW" | "ASSIGNED" | "IN_PROGRESS" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "CANCELLED";
+  currentStatus: "NEW" | "OPEN" | "ASSIGNED" | "IN_PROGRESS" | "WAITING_FOR_REQUESTER" | "PENDING_REQUESTER" | "RESOLVED" | "CLOSED" | "REOPENED" | "CANCELLED";
   requesterIndicatedResolved?: boolean;
   resolutionSummary?: string | null;
   resolvedAt?: string | null;
