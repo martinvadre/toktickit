@@ -20,7 +20,17 @@ import { authenticate } from "./middleware/auth";
 
 const app = express();
 
-app.use(cors());
+const corsOrigin = process.env.CORS_ORIGIN;
+app.use(
+  cors(
+    corsOrigin
+      ? {
+          origin: corsOrigin.split(",").map((o) => o.trim()),
+          credentials: true,
+        }
+      : undefined
+  )
+);
 app.use(express.json());
 app.use(authenticate);
 
@@ -29,34 +39,37 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/requester", requesterRoutes);
 
-// Set up Multer file upload storage
+// Legacy fallback directory for local/test file fixtures; production uses in-memory Multer + PostgreSQL BYTEA
 const uploadDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${uniqueSuffix}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
   limits: { fileSize: MAX_FILE_SIZE_BYTES },
 });
 
-// GET /api/health
+// GET /api/health (Liveness check)
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",
     service: "TokTickIT API",
   });
+});
+
+// GET /api/ready (Readiness check verifying PostgreSQL connectivity)
+app.get("/api/ready", async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({
+      status: "ready",
+      db: "connected",
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: "not_ready",
+      db: "disconnected",
+    });
+  }
 });
 
 // GET /api/requesters
@@ -302,6 +315,18 @@ app.get("/api/tickets/:id", async (req, res) => {
         assignedStaff: { select: { id: true, name: true, email: true } },
         attachments: {
           orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            ticketId: true,
+            fileName: true,
+            storedFileName: true,
+            fileSize: true,
+            mimeType: true,
+            isRemoved: true,
+            removalReason: true,
+            removedAt: true,
+            createdAt: true,
+          },
         },
         comments: {
           where: { isInternal: false }, // Strictly omit internal notes for requesters! (API-24 / BR-04)
@@ -519,8 +544,11 @@ app.patch("/api/tickets/:id/indicate-resolved", async (req, res) => {
 // POST /api/tickets
 app.post("/api/tickets", async (req, res) => {
   try {
+    const authenticatedUser = (req as any).user;
     const requesterHeader = req.headers["x-requester-id"];
-    const requesterId = req.body.requesterId || (requesterHeader ? Number(requesterHeader) : undefined);
+    const requesterId =
+      req.body.requesterId ||
+      (requesterHeader ? Number(requesterHeader) : authenticatedUser?.id);
 
     const validation = validateTicketInput({
       ...req.body,
@@ -614,15 +642,15 @@ app.post("/api/tickets", async (req, res) => {
 // POST /api/tickets/:id/attachments (Upload Attachment)
 app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res) => {
   try {
+    const authenticatedUser = (req as any).user;
     const requesterHeader = req.headers["x-requester-id"];
     const requesterId = req.query.requesterId
       ? Number(req.query.requesterId)
       : requesterHeader
       ? Number(requesterHeader)
-      : undefined;
+      : authenticatedUser?.id;
 
     if (!requesterId || isNaN(requesterId)) {
-      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(400).json({
         error: {
           code: "UNAUTHORIZED_REQUESTER",
@@ -633,7 +661,6 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
 
     const ticketId = parseInt(req.params.id, 10);
     if (isNaN(ticketId)) {
-      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(400).json({
         error: {
           code: "INVALID_ID",
@@ -647,7 +674,6 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
     });
 
     if (!ticket) {
-      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(404).json({
         error: {
           code: "NOT_FOUND",
@@ -658,7 +684,6 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
 
     // Ownership check (AC-09)
     if (ticket.requesterId !== requesterId) {
-      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(403).json({
         error: {
           code: "FORBIDDEN",
@@ -678,7 +703,6 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
 
     // MIME type whitelist check
     if (!isAllowedMimeType(req.file.mimetype)) {
-      fs.unlinkSync(req.file.path);
       return res.status(415).json({
         error: {
           code: "UNSUPPORTED_MEDIA_TYPE",
@@ -696,7 +720,6 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
     });
 
     if (activeCount >= MAX_ACTIVE_ATTACHMENTS_PER_TICKET) {
-      fs.unlinkSync(req.file.path);
       return res.status(400).json({
         error: {
           code: "ATTACHMENT_LIMIT_EXCEEDED",
@@ -705,21 +728,35 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
       });
     }
 
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(req.file.originalname);
+    const storedFileName = req.file.filename || `${uniqueSuffix}${ext}`;
+
     const attachment = await prisma.attachment.create({
       data: {
         ticketId,
         fileName: req.file.originalname,
-        storedFileName: req.file.filename,
+        storedFileName,
         fileSize: req.file.size,
         mimeType: req.file.mimetype,
+        content: req.file.buffer,
+      },
+      select: {
+        id: true,
+        ticketId: true,
+        fileName: true,
+        storedFileName: true,
+        fileSize: true,
+        mimeType: true,
+        isRemoved: true,
+        removalReason: true,
+        removedAt: true,
+        createdAt: true,
       },
     });
 
     res.status(201).json({ data: attachment });
   } catch (error) {
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     console.error("Failed to upload attachment:", error);
     res.status(500).json({
       error: {
@@ -733,12 +770,13 @@ app.post("/api/tickets/:id/attachments", upload.single("file"), async (req, res)
 // GET /api/attachments/:id/download (Download Attachment)
 app.get("/api/attachments/:id/download", async (req, res) => {
   try {
+    const authenticatedUser = (req as any).user;
     const requesterHeader = req.headers["x-requester-id"];
     const requesterId = req.query.requesterId
       ? Number(req.query.requesterId)
       : requesterHeader
       ? Number(requesterHeader)
-      : undefined;
+      : authenticatedUser?.id;
 
     if (!requesterId || isNaN(requesterId)) {
       return res.status(400).json({
@@ -774,7 +812,10 @@ app.get("/api/attachments/:id/download", async (req, res) => {
     }
 
     // Ownership check (AC-09)
-    if (attachment.ticket.requesterId !== requesterId) {
+    const isStaffOrAdmin =
+      authenticatedUser &&
+      (authenticatedUser.role === "STAFF" || authenticatedUser.role === "ADMIN");
+    if (!isStaffOrAdmin && attachment.ticket.requesterId !== requesterId) {
       return res.status(403).json({
         error: {
           code: "FORBIDDEN",
@@ -793,6 +834,17 @@ app.get("/api/attachments/:id/download", async (req, res) => {
       });
     }
 
+    // Serve from PostgreSQL BYTEA column when available (Cloud Run stateless persistence)
+    if (attachment.content) {
+      res.setHeader("Content-Type", attachment.mimeType || "application/octet-stream");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${encodeURIComponent(attachment.fileName)}"`
+      );
+      return res.status(200).send(Buffer.from(attachment.content));
+    }
+
+    // Fallback to disk storage for legacy/test fixtures
     const filePath = path.join(uploadDir, attachment.storedFileName);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({
@@ -818,12 +870,13 @@ app.get("/api/attachments/:id/download", async (req, res) => {
 // DELETE /api/attachments/:id (Soft-remove Attachment)
 app.delete("/api/attachments/:id", async (req, res) => {
   try {
+    const authenticatedUser = (req as any).user;
     const requesterHeader = req.headers["x-requester-id"];
     const requesterId = req.query.requesterId
       ? Number(req.query.requesterId)
       : requesterHeader
       ? Number(requesterHeader)
-      : undefined;
+      : authenticatedUser?.id;
 
     if (!requesterId || isNaN(requesterId)) {
       return res.status(400).json({
@@ -894,6 +947,18 @@ app.delete("/api/attachments/:id", async (req, res) => {
         removalReason: reasonValidation.sanitizedReason,
         removedAt: new Date(),
       },
+      select: {
+        id: true,
+        ticketId: true,
+        fileName: true,
+        storedFileName: true,
+        fileSize: true,
+        mimeType: true,
+        isRemoved: true,
+        removalReason: true,
+        removedAt: true,
+        createdAt: true,
+      },
     });
 
     res.status(200).json({ data: updated });
@@ -907,5 +972,17 @@ app.delete("/api/attachments/:id", async (req, res) => {
     });
   }
 });
+
+// Serve static frontend files in production (unified single-container deployment)
+const clientDistPath = path.resolve(__dirname, "../../client/dist");
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 export default app;

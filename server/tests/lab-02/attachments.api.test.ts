@@ -50,6 +50,13 @@ describe("API-08 to API-11: Attachment Lifecycle (Upload, Download, Soft-Removal
     expect(res.body.data.fileName).toBe("screenshot.png");
     expect(res.body.data.mimeType).toBe("image/png");
     expect(res.body.data.isRemoved).toBe(false);
+
+    // Verify stateless DB-backed download returns the uploaded bytes
+    const downloadRes = await request(app)
+      .get(`/api/attachments/${res.body.data.id}/download`)
+      .set("x-requester-id", "1");
+    expect(downloadRes.status).toBe(200);
+    expect(Buffer.from(downloadRes.body).toString()).toBe("fake image bytes");
   });
 
   it("API-09: rejects upload with invalid file format (415 Unsupported Media Type)", async () => {
