@@ -129,6 +129,7 @@ model Attachment {
   storedFileName String
   fileSize       Int
   mimeType       String
+  content        Bytes?
   isRemoved      Boolean   @default(false)
   removalReason  String?
   removedAt      DateTime?
