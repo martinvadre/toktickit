@@ -286,6 +286,18 @@ router.get("/tickets/:id", async (req: AuthenticatedRequest, res: Response) => {
         attachments: {
           where: { isRemoved: false },
           orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            ticketId: true,
+            fileName: true,
+            storedFileName: true,
+            fileSize: true,
+            mimeType: true,
+            isRemoved: true,
+            removalReason: true,
+            removedAt: true,
+            createdAt: true,
+          },
         },
         comments: {
           orderBy: { createdAt: "asc" },
@@ -761,7 +773,7 @@ router.post("/tickets/:id/actions-taken", async (req: AuthenticatedRequest, res:
     }
 
     // Validate status enum
-    let actionStatus = ActionStatus.COMPLETED;
+    let actionStatus: ActionStatus = ActionStatus.COMPLETED;
     if (status) {
       const upperStatus = String(status).trim().toUpperCase() as ActionStatus;
       if (!Object.values(ActionStatus).includes(upperStatus)) {

@@ -37,8 +37,13 @@ export async function authenticate(
       }
     }
 
-    // Fallback for legacy Lab 2 test cases using x-requester-id
-    const legacyRequesterId = req.headers["x-requester-id"];
+    // Fallback for legacy Lab 2 test cases using x-requester-id (disabled in production unless explicitly enabled)
+    const allowLegacyHeader =
+      process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_LEGACY_REQUESTER_HEADER === "true";
+    const legacyRequesterId = allowLegacyHeader
+      ? req.headers["x-requester-id"]
+      : undefined;
     if (legacyRequesterId) {
       const parsedId = Number(legacyRequesterId);
       if (!isNaN(parsedId)) {

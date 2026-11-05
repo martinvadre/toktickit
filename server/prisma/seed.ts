@@ -4,7 +4,12 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
+  const isProd = process.env.NODE_ENV === "production";
+  const seedDemoData = !isProd || process.env.SEED_DEMO_DATA === "true";
+  const adminPassword = process.env.ADMIN_PASSWORD || "Password123!";
+  const demoUserPassword = process.env.DEMO_USER_PASSWORD || "Password123!";
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+  const defaultPasswordHash = await bcrypt.hash(demoUserPassword, 10);
 
   // 1. Seed Categories (4 required categories)
   const categories = [
@@ -152,27 +157,43 @@ async function main() {
     },
   ];
 
-  for (const user of users) {
+  const usersToSeed = seedDemoData
+    ? users
+    : users.filter((u) => u.role === Role.ADMIN);
+
+  for (const user of usersToSeed) {
+    const isUserAdmin = user.role === Role.ADMIN;
+    const hashToUse = isUserAdmin ? adminPasswordHash : defaultPasswordHash;
+    const mustChangeOnCreate = isProd && isUserAdmin ? true : user.mustChangePassword;
+
     const result = await prisma.user.upsert({
       where: { id: user.id },
-      update: {
-        name: user.name,
-        email: user.email,
-        passwordHash: defaultPasswordHash,
-        department: user.department,
-        role: user.role,
-        isActive: user.isActive,
-        mustChangePassword: user.mustChangePassword,
-      },
+      update: isProd
+        ? {
+            name: user.name,
+            email: user.email,
+            department: user.department,
+            role: user.role,
+            isActive: user.isActive,
+          }
+        : {
+            name: user.name,
+            email: user.email,
+            passwordHash: hashToUse,
+            department: user.department,
+            role: user.role,
+            isActive: user.isActive,
+            mustChangePassword: user.mustChangePassword,
+          },
       create: {
         id: user.id,
         name: user.name,
         email: user.email,
-        passwordHash: defaultPasswordHash,
+        passwordHash: hashToUse,
         department: user.department,
         role: user.role,
         isActive: user.isActive,
-        mustChangePassword: user.mustChangePassword,
+        mustChangePassword: mustChangeOnCreate,
       },
     });
 
@@ -199,7 +220,12 @@ async function main() {
       `Seeded user: ${result.name} (${result.email}) [Role: ${result.role}, active: ${result.isActive}]`
     );
   }
-  console.log(`Successfully seeded ${users.length} users.`);
+  console.log(`Successfully seeded ${usersToSeed.length} users.`);
+
+  if (!seedDemoData) {
+    console.log("SEED_DEMO_DATA is not enabled in production; skipping sample demo tickets.");
+    return;
+  }
 
   // 4. Seed Realistic Tickets covering all statuses and multiple Actions Taken
   const seedTickets = [
