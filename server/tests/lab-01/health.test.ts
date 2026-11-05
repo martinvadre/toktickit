@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import request from "supertest";
 import app from "../../src/app";
 
-describe("API Health Check Endpoint", () => {
+describe("API Health & Readiness Check Endpoints", () => {
   it("GET /api/health returns 200 and expected JSON", async () => {
     const response = await request(app).get("/api/health");
     expect(response.status).toBe(200);
@@ -10,6 +10,16 @@ describe("API Health Check Endpoint", () => {
     expect(response.body).toEqual({
       status: "ok",
       service: "TokTickIT API",
+    });
+  });
+
+  it("GET /api/ready returns 200 and connected db status", async () => {
+    const response = await request(app).get("/api/ready");
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.body).toEqual({
+      status: "ready",
+      db: "connected",
     });
   });
 });
