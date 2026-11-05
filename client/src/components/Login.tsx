@@ -139,42 +139,44 @@ export const Login: React.FC<LoginProps> = ({ onSuccess }) => {
           </button>
         </form>
 
-        {/* Quick Demo Helper */}
-        <div className="mt-4 pt-3 border-top">
-          <p className="text-muted small text-center mb-2 fw-medium">
-            Demo Test Accounts (Click to Fill):
-          </p>
-          <div className="d-flex flex-column gap-1">
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-primary text-start py-1"
-              onClick={() => handleQuickFill("somchai.pra@kmutt.ac.th")}
-            >
-              👤 <strong>Requester</strong>: somchai.pra@kmutt.ac.th
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-success text-start py-1"
-              onClick={() => handleQuickFill("staff.supachai@kmutt.ac.th")}
-            >
-              🛠️ <strong>IT Staff</strong>: staff.supachai@kmutt.ac.th
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-danger text-start py-1"
-              onClick={() => handleQuickFill("admin@kmutt.ac.th")}
-            >
-              👑 <strong>Administrator</strong>: admin@kmutt.ac.th
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-warning text-start py-1 text-dark"
-              onClick={() => handleQuickFill("firstlogin@kmutt.ac.th")}
-            >
-              🔐 <strong>New User (Password Change)</strong>: firstlogin@kmutt.ac.th
-            </button>
+        {/* Quick Demo Helper (Hidden in production builds) */}
+        {!import.meta.env.PROD && (
+          <div className="mt-4 pt-3 border-top">
+            <p className="text-muted small text-center mb-2 fw-medium">
+              Demo Test Accounts (Click to Fill):
+            </p>
+            <div className="d-flex flex-column gap-1">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary text-start py-1"
+                onClick={() => handleQuickFill("somchai.pra@kmutt.ac.th")}
+              >
+                👤 <strong>Requester</strong>: somchai.pra@kmutt.ac.th
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-success text-start py-1"
+                onClick={() => handleQuickFill("staff.supachai@kmutt.ac.th")}
+              >
+                🛠️ <strong>IT Staff</strong>: staff.supachai@kmutt.ac.th
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger text-start py-1"
+                onClick={() => handleQuickFill("admin@kmutt.ac.th")}
+              >
+                👑 <strong>Administrator</strong>: admin@kmutt.ac.th
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-warning text-start py-1 text-dark"
+                onClick={() => handleQuickFill("firstlogin@kmutt.ac.th")}
+              >
+                🔐 <strong>New User (Password Change)</strong>: firstlogin@kmutt.ac.th
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
