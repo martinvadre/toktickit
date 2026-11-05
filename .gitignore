@@ -8,9 +8,19 @@ build/
 test-results/
 playwright-report/
 
-# Environment variables & secrets
+# Environment variables & secrets (Never commit real credentials!)
 .env
-.env.local
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+client/.env
+client/.env.*
+!client/.env.example
+gha-creds-*.json
+*.pem
+*.key
 
 # Database
 server/prisma/*.db
