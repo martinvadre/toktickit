@@ -62,7 +62,7 @@ export const Login: React.FC<LoginProps> = ({ onSuccess }) => {
           </div>
           <h1 className="h3 fw-bold text-dark mb-1">TokTickIT</h1>
           <p className="text-muted small">
-            Sign in to your IT Service Desk account
+            Sign in to your IT Service Desk account (Release 2 — Cloud Run)
           </p>
         </div>
 
