@@ -5,7 +5,7 @@ import app from "../../src/app";
 describe("API Health & Readiness Check Endpoints", () => {
   it("GET /api/health returns 200 and expected JSON", async () => {
     const response = await request(app).get("/api/health");
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(999);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body).toEqual({
       status: "ok",
